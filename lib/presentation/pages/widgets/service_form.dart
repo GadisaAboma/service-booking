@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:service_booking_app/core/utils/validators.dart';
-import 'package:service_booking_app/presentation/controllers/service_controller.dart';
+import 'package:service_booking/presentation/controllers/service_controller.dart';
+
 
 class ServiceForm extends StatelessWidget {
   final ServiceController controller;
