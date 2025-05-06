@@ -9,17 +9,61 @@ class ServiceRepositoryImpl implements ServiceRepository {
   ServiceRepositoryImpl(this.remoteDataSource);
 
   @override
-  Future<void> createService(ServiceEntity service) async {
-    final serviceModel = ServiceModel(
-      name: service.name,
-      category: service.category,
-      price: service.price,
-      imageUrl: service.imageUrl,
-      availability: service.availability,
-      duration: service.duration,
-      rating: service.rating,
-    );
+  Future<List<ServiceEntity>> getServices() async {
+    final models = await remoteDataSource.getServices();
+    return models.map((model) => model.toEntity()).toList();
+  }
 
-    await remoteDataSource.createService(serviceModel);
+  @override
+  Future<ServiceEntity> getService(String id) async {
+    final model = await remoteDataSource.getService(id);
+    return model.toEntity();
+  }
+
+  @override
+  Future<void> createService(ServiceEntity service) async {
+    final model = ServiceModel.fromEntity(service);
+    await remoteDataSource.createService(model);
+  }
+
+  @override
+  Future<void> updateService(String id, ServiceEntity service) async {
+    final model = ServiceModel.fromEntity(service);
+    await remoteDataSource.updateService(id, model);
+  }
+
+  @override
+  Future<void> deleteService(String id) async {
+    await remoteDataSource.deleteService(id);
+  }
+}
+
+extension ServiceModelExtension on ServiceModel {
+  ServiceEntity toEntity() {
+    return ServiceEntity(
+      id: id,
+      name: name,
+      category: category,
+      price: price,
+      imageUrl: imageUrl,
+      availability: availability,
+      duration: duration,
+      rating: rating,
+    );
+  }
+}
+
+extension ServiceEntityExtension on ServiceEntity {
+  ServiceModel fromEntity() {
+    return ServiceModel(
+      id: id,
+      name: name,
+      category: category,
+      price: price,
+      imageUrl: imageUrl,
+      availability: availability,
+      duration: duration,
+      rating: rating,
+    );
   }
 }
