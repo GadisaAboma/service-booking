@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:service_booking/core/utils/logger.dart';
 import 'package:service_booking/data/models/service_model.dart';
 
 class RemoteDataSource {
@@ -11,6 +12,9 @@ class RemoteDataSource {
 
   Future<List<ServiceModel>> getServices() async {
     final response = await client.get(Uri.parse('$baseUrl/services'));
+
+    logger(json.decode(response.body));
+
     if (response.statusCode == 200) {
       final List<dynamic> jsonList = json.decode(response.body);
       return jsonList.map((json) => ServiceModel.fromJson(json)).toList();
@@ -21,6 +25,7 @@ class RemoteDataSource {
 
   Future<ServiceModel> getService(String id) async {
     final response = await client.get(Uri.parse('$baseUrl/services/$id'));
+    logger(json.decode(response.body));
     if (response.statusCode == 200) {
       return ServiceModel.fromJson(json.decode(response.body));
     } else {

@@ -36,6 +36,10 @@ dependencies:
   cupertino_icons: ^1.0.8
   get: ^4.7.2
   http: ^1.4.0
+  image_picker: ^1.1.2
+  path_provider: ^2.1.5
+  path: ^1.9.1
+  google_fonts: ^6.2.1
 
 dev_dependencies:
   flutter_test:

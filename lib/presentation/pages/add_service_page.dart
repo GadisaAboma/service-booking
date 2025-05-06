@@ -10,7 +10,7 @@ class AddServicePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.find<ServiceController>();
     return Scaffold(
-      appBar: AppBar(title: const Text('Add New Service')),
+      // appBar: AppBar(title: const Text('Add New Service')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: ServiceForm(controller: controller),

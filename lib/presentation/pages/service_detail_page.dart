@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:service_booking/core/routes/app_routes.dart';
 import 'package:service_booking/presentation/controllers/service_controller.dart';
+import 'package:service_booking/presentation/pages/widgets/fade_animation.dart';
 
 class ServiceDetailPage extends StatelessWidget {
   const ServiceDetailPage({super.key});

@@ -1,5 +1,9 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:service_booking/domain/entities/service_entity.dart';
 import 'package:service_booking/domain/usecases/create_service_usecase.dart';
 import 'package:service_booking/domain/usecases/get_service_usecase.dart';
@@ -19,13 +23,14 @@ class ServiceController extends GetxController {
   final services = <ServiceEntity>[].obs;
   final selectedService = Rxn<ServiceEntity>();
   final isLoading = false.obs;
+  final imageFile = Rxn<File>();
+  final isImageUploading = false.obs;
 
   // Form controllers
   final formKey = GlobalKey<FormState>();
   final nameController = TextEditingController();
   final categoryController = TextEditingController();
   final priceController = TextEditingController();
-  final imageUrlController = TextEditingController();
   final durationController = TextEditingController();
   final availability = true.obs;
 
@@ -47,15 +52,37 @@ class ServiceController extends GetxController {
     }
   }
 
-  Future<void> fetchService(String id) async {
-    isLoading.value = true;
+  Future<void> pickImage(ImageSource source) async {
     try {
-      final result = await getServiceUseCase(id);
-      selectedService.value = result;
+      final pickedFile = await ImagePicker().pickImage(source: source);
+      if (pickedFile != null) {
+        imageFile.value = File(pickedFile.path);
+      }
     } catch (e) {
-      Get.snackbar('Error', 'Failed to fetch service: ${e.toString()}');
+      Get.snackbar('Error', 'Failed to pick image: ${e.toString()}');
+    }
+  }
+
+  Future<void> uploadImage() async {
+    if (imageFile.value == null) return;
+
+    isImageUploading.value = true;
+    try {
+      // Here you would implement actual image upload to your server
+      // For demo purposes, we'll just copy the file to app directory
+      final appDir = await getApplicationDocumentsDirectory();
+      final fileName = basename(imageFile.value!.path);
+      final savedImage = await imageFile.value!.copy(
+        '${appDir.path}/$fileName',
+      );
+
+      // In real app, you would upload to your server and get the URL
+      // For now we'll just use the local path
+      Get.snackbar('Success', 'Image uploaded successfully');
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to upload image: ${e.toString()}');
     } finally {
-      isLoading.value = false;
+      isImageUploading.value = false;
     }
   }
 
@@ -68,14 +95,13 @@ class ServiceController extends GetxController {
         name: nameController.text,
         category: categoryController.text,
         price: double.parse(priceController.text),
-        imageUrl:
-            imageUrlController.text.isEmpty ? null : imageUrlController.text,
+        imageUrl: imageFile.value?.path, // Use local path or uploaded URL
         availability: availability.value,
         duration: int.parse(durationController.text),
       );
 
       await createServiceUseCase(service);
-      await fetchServices(); // Refresh the list
+      await fetchServices();
       Get.back();
       Get.snackbar('Success', 'Service created successfully');
     } catch (e) {
@@ -90,7 +116,6 @@ class ServiceController extends GetxController {
     nameController.dispose();
     categoryController.dispose();
     priceController.dispose();
-    imageUrlController.dispose();
     durationController.dispose();
     super.onClose();
   }

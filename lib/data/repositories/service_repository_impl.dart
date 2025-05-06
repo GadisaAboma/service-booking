@@ -11,24 +11,24 @@ class ServiceRepositoryImpl implements ServiceRepository {
   @override
   Future<List<ServiceEntity>> getServices() async {
     final models = await remoteDataSource.getServices();
-    return models.map((model) => model.toEntity()).toList();
+    return models.map((model) => _toEntity(model)).toList();
   }
 
   @override
   Future<ServiceEntity> getService(String id) async {
     final model = await remoteDataSource.getService(id);
-    return model.toEntity();
+    return _toEntity(model);
   }
 
   @override
   Future<void> createService(ServiceEntity service) async {
-    final model = ServiceModel.fromEntity(service);
+    final model = _toModel(service);
     await remoteDataSource.createService(model);
   }
 
   @override
   Future<void> updateService(String id, ServiceEntity service) async {
-    final model = ServiceModel.fromEntity(service);
+    final model = _toModel(service);
     await remoteDataSource.updateService(id, model);
   }
 
@@ -36,34 +36,32 @@ class ServiceRepositoryImpl implements ServiceRepository {
   Future<void> deleteService(String id) async {
     await remoteDataSource.deleteService(id);
   }
-}
 
-extension ServiceModelExtension on ServiceModel {
-  ServiceEntity toEntity() {
+  // Helper method to convert Model to Entity
+  ServiceEntity _toEntity(ServiceModel model) {
     return ServiceEntity(
-      id: id,
-      name: name,
-      category: category,
-      price: price,
-      imageUrl: imageUrl,
-      availability: availability,
-      duration: duration,
-      rating: rating,
+      id: model.id,
+      name: model.name ?? "",
+      category: model.category ?? "",
+      price: model.price ?? .0,
+      imageUrl: model.imageUrl,
+      availability: model.availability ?? false,
+      duration: 1,
+      rating: model.rating ?? 5,
     );
   }
-}
 
-extension ServiceEntityExtension on ServiceEntity {
-  ServiceModel fromEntity() {
+  // Helper method to convert Entity to Model
+  ServiceModel _toModel(ServiceEntity entity) {
     return ServiceModel(
-      id: id,
-      name: name,
-      category: category,
-      price: price,
-      imageUrl: imageUrl,
-      availability: availability,
-      duration: duration,
-      rating: rating,
+      id: entity.id,
+      name: entity.name,
+      category: entity.category,
+      price: entity.price,
+      imageUrl: entity.imageUrl,
+      availability: entity.availability,
+      duration: entity.duration,
+      rating: entity.rating,
     );
   }
 }
