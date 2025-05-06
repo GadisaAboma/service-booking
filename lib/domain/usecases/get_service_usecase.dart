@@ -1,5 +1,3 @@
-
-
 import 'package:service_booking/domain/entities/service_entity.dart';
 import 'package:service_booking/domain/repositories/service_repository.dart';
 

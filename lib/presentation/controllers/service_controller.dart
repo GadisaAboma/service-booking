@@ -2,20 +2,62 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:service_booking/domain/entities/service_entity.dart';
 import 'package:service_booking/domain/usecases/create_service_usecase.dart';
+import 'package:service_booking/domain/usecases/get_service_usecase.dart';
+import 'package:service_booking/domain/usecases/get_services_usecase.dart';
 
 class ServiceController extends GetxController {
+  final GetServicesUseCase getServicesUseCase;
+  final GetServiceUseCase getServiceUseCase;
   final CreateServiceUseCase createServiceUseCase;
 
-  ServiceController(this.createServiceUseCase);
+  ServiceController(
+    this.getServicesUseCase,
+    this.getServiceUseCase,
+    this.createServiceUseCase,
+  );
 
+  final services = <ServiceEntity>[].obs;
+  final selectedService = Rxn<ServiceEntity>();
+  final isLoading = false.obs;
+
+  // Form controllers
   final formKey = GlobalKey<FormState>();
   final nameController = TextEditingController();
   final categoryController = TextEditingController();
   final priceController = TextEditingController();
   final imageUrlController = TextEditingController();
   final durationController = TextEditingController();
-  var availability = true.obs;
-  var isLoading = false.obs;
+  final availability = true.obs;
+
+  @override
+  void onInit() {
+    fetchServices();
+    super.onInit();
+  }
+
+  Future<void> fetchServices() async {
+    isLoading.value = true;
+    try {
+      final result = await getServicesUseCase();
+      services.assignAll(result);
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to fetch services: ${e.toString()}');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> fetchService(String id) async {
+    isLoading.value = true;
+    try {
+      final result = await getServiceUseCase(id);
+      selectedService.value = result;
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to fetch service: ${e.toString()}');
+    } finally {
+      isLoading.value = false;
+    }
+  }
 
   Future<void> createService() async {
     if (!formKey.currentState!.validate()) return;
@@ -33,18 +75,11 @@ class ServiceController extends GetxController {
       );
 
       await createServiceUseCase(service);
+      await fetchServices(); // Refresh the list
       Get.back();
-      Get.snackbar(
-        'Success',
-        'Service created successfully',
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      Get.snackbar('Success', 'Service created successfully');
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to create service: ${e.toString()}',
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      Get.snackbar('Error', 'Failed to create service: ${e.toString()}');
     } finally {
       isLoading.value = false;
     }
