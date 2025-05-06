@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:service_booking_app/core/utils/extensions.dart';
-import 'package:service_booking_app/domain/entities/service_entity.dart';
-import 'package:service_booking_app/domain/usecases/create_service_usecase.dart';
+import 'package:service_booking/domain/entities/service_entity.dart';
+import 'package:service_booking/domain/usecases/create_service_usecase.dart';
 
 class ServiceController extends GetxController {
   final CreateServiceUseCase createServiceUseCase;
@@ -27,18 +26,25 @@ class ServiceController extends GetxController {
         name: nameController.text,
         category: categoryController.text,
         price: double.parse(priceController.text),
-        imageUrl: imageUrlController.text.isEmpty ? null : imageUrlController.text,
+        imageUrl:
+            imageUrlController.text.isEmpty ? null : imageUrlController.text,
         availability: availability.value,
         duration: int.parse(durationController.text),
       );
 
       await createServiceUseCase(service);
       Get.back();
-      Get.snackbar('Success', 'Service created successfully',
-          snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar(
+        'Success',
+        'Service created successfully',
+        snackPosition: SnackPosition.BOTTOM,
+      );
     } catch (e) {
-      Get.snackbar('Error', 'Failed to create service: ${e.toString()}',
-          snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar(
+        'Error',
+        'Failed to create service: ${e.toString()}',
+        snackPosition: SnackPosition.BOTTOM,
+      );
     } finally {
       isLoading.value = false;
     }
