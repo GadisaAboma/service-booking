@@ -4,6 +4,7 @@ import 'package:service_booking/data/datasources/remote_data_source.dart';
 import 'package:service_booking/data/repositories/service_repository_impl.dart';
 import 'package:service_booking/domain/repositories/service_repository.dart';
 import 'package:service_booking/domain/usecases/create_service_usecase.dart';
+import 'package:service_booking/presentation/controllers/service_controller.dart';
 
 class ServiceBinding extends Bindings {
   @override
