@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:service_booking_app/core/routes/app_pages.dart';
-import 'package:service_booking_app/core/theme/app_theme.dart';
+import 'package:service_booking/core/theme/app_theme.dart';
 
 void main() {
   runApp(const MyApp());
