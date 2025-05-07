@@ -4,6 +4,7 @@ import 'package:service_booking/data/datasources/remote_data_source.dart';
 import 'package:service_booking/data/repositories/service_repository_impl.dart';
 import 'package:service_booking/domain/repositories/service_repository.dart';
 import 'package:service_booking/domain/usecases/create_service_usecase.dart';
+import 'package:service_booking/domain/usecases/delete_service_usecase.dart';
 import 'package:service_booking/domain/usecases/get_service_usecase.dart';
 import 'package:service_booking/domain/usecases/get_services_usecase.dart';
 import 'package:service_booking/domain/usecases/update_service_usecase.dart';
@@ -15,7 +16,7 @@ class ServiceBinding extends Bindings {
     Get.lazyPut(() => http.Client());
     Get.lazyPut(
       () => RemoteDataSource(
-        baseUrl: 'https://crudcrud.com/api/e1f0a5c7c7484284b431c997dc4977ad',
+        baseUrl: 'https://crudcrud.com/api/e36c6c2696b240118bf0c33cb340e7da',
         client: Get.find(),
       ),
     );
@@ -26,12 +27,14 @@ class ServiceBinding extends Bindings {
     Get.lazyPut(() => GetServiceUseCase(Get.find<ServiceRepository>()));
     Get.lazyPut(() => CreateServiceUseCase(Get.find<ServiceRepository>()));
     Get.lazyPut(() => UpdateServiceUseCase(Get.find<ServiceRepository>()));
+    Get.lazyPut(() => DeleteServiceUseCase(Get.find<ServiceRepository>()));
     Get.lazyPut(
       () => ServiceController(
         Get.find<GetServicesUseCase>(),
         Get.find<GetServiceUseCase>(),
         Get.find<CreateServiceUseCase>(),
         Get.find<UpdateServiceUseCase>(),
+        Get.find<DeleteServiceUseCase>(),
       ),
     );
   }

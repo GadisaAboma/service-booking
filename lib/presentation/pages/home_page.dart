@@ -65,6 +65,7 @@ class HomePage extends StatelessWidget {
                   padding: const EdgeInsets.only(bottom: 16),
                   child: ServiceContainer(
                     service: service,
+                    onDelete: () => controller.deleteService(service.id!),
                     onTap:
                         () => Get.toNamed(
                           AppRoutes.serviceDetail,
@@ -163,12 +164,17 @@ class _EmptyStateWidget extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          Text(
-            "Check back later or add a new service",
-            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              "Add a new service by tapping on the plus button on the top right or the button below.",
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+            ),
           ),
           const SizedBox(height: 20),
-          ElevatedButton(
+          ElevatedButton.icon(
+            icon: Icon(Icons.add, color: Colors.white),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.blue,
               shape: RoundedRectangleBorder(
@@ -176,8 +182,13 @@ class _EmptyStateWidget extends StatelessWidget {
               ),
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
-            onPressed: onRefresh,
-            child: const Text("Refresh", style: TextStyle(color: Colors.white)),
+            onPressed: () {
+              Get.toNamed(AppRoutes.addService);
+            },
+            label: const Text(
+              "Create One",
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),

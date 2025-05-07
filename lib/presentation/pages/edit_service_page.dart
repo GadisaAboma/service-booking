@@ -64,7 +64,7 @@ class _EditServicePageState extends State<EditServicePage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // Header with title
-                const SizedBox(height: 20),
+                const SizedBox(height: 40),
                 _buildHeader(context),
                 const SizedBox(height: 20),
 

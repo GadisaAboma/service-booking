@@ -447,7 +447,9 @@ class ServiceForm extends StatelessWidget {
             boxShadow: [
               if (!controller.isLoading.value)
                 BoxShadow(
-                  color: Theme.of(Get.context!).primaryColor.withOpacity(0.2),
+                  color: Theme.of(
+                    Get.context!,
+                  ).primaryColor.withValues(alpha: 0.2),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),

@@ -1,33 +1,31 @@
-// lib/domain/entities/service_entity.dart
 import 'package:hive/hive.dart';
-
-part 'service_entity.g.dart';
+import 'package:service_booking/domain/entities/service_entity.dart';
 
 @HiveType(typeId: 0)
-class ServiceEntity {
+class ServiceEntity extends HiveObject {
   @HiveField(0)
-  String? id;
+  final String? id;
 
   @HiveField(1)
-  String name;
+  final String name;
 
   @HiveField(2)
-  String category;
+  final String category;
 
   @HiveField(3)
-  double price;
+  final double price;
 
   @HiveField(4)
-  String? imageUrl;
+  final String? imageUrl;
 
   @HiveField(5)
-  bool availability;
+  final bool availability;
 
   @HiveField(6)
-  int duration;
+  final int duration;
 
   @HiveField(7)
-  double rating;
+  final double rating;
 
   ServiceEntity({
     this.id,

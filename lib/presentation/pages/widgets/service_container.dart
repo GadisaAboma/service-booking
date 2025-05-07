@@ -6,12 +6,14 @@ class ServiceContainer extends StatelessWidget {
   final ServiceEntity service;
   final VoidCallback onTap;
   final VoidCallback? onBookPressed;
+  final VoidCallback? onDelete;
 
   const ServiceContainer({
     super.key,
     required this.service,
     required this.onTap,
     this.onBookPressed,
+    this.onDelete,
   });
 
   @override
@@ -27,48 +29,52 @@ class ServiceContainer extends StatelessWidget {
             borderRadius: BorderRadius.circular(10),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.04),
+                color: Colors.black.withOpacity(0.04),
                 blurRadius: 8,
                 offset: const Offset(0, 5),
               ),
             ],
           ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Stack(
             children: [
-              // Left-aligned image (smaller)
-              _buildImageSection(context),
-              const SizedBox(width: 10),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Image Section
+                  _buildImageSection(context),
+                  const SizedBox(width: 10),
 
-              // Right content section (more compact)
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(
-                    top: 10,
-                    right: 10,
-                    bottom: 10,
+                  // Content Section
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                        top: 12,
+                        right: 12,
+                        bottom: 12,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Title and Category
+                          _buildTitleSection(context),
+                          const SizedBox(height: 6),
+
+                          // Price and Rating
+                          _buildPriceRatingSection(context),
+                          const SizedBox(height: 8),
+
+                          // Duration and Availability
+                          _buildMetaSection(context),
+                          const SizedBox(height: 8),
+                        ],
+                      ),
+                    ),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Title and category
-                      _buildTitleSection(context),
-                      const SizedBox(height: 6),
-
-                      // Price and rating
-                      _buildPriceRatingSection(context),
-                      const SizedBox(height: 8),
-
-                      // Metadata
-                      _buildMetaSection(context),
-                      const SizedBox(height: 8),
-
-                      // Book button
-                      // if (onBookPressed != null) _buildBookButton(context),
-                    ],
-                  ),
-                ),
+                ],
               ),
+
+              // Delete Button (if provided)
+              if (onDelete != null) _buildDeleteButton(context),
             ],
           ),
         ),
@@ -80,57 +86,29 @@ class ServiceContainer extends StatelessWidget {
     return ClipRRect(
       borderRadius: const BorderRadius.horizontal(left: Radius.circular(10)),
       child: Container(
-        width: 100, // Smaller width
-        height: 100, // Square aspect ratio
+        width: 100,
+        height: 100,
         color: Colors.grey[50],
         child: Stack(
           children: [
+            // Service Image or Placeholder
             if (service.imageUrl != null)
               Image.file(
                 File(service.imageUrl!),
                 fit: BoxFit.cover,
                 width: double.infinity,
                 height: double.infinity,
-              ),
-
-            if (service.imageUrl == null)
+              )
+            else
               Center(
                 child: Icon(
                   Icons.photo_camera_back,
-                  size: 32, // Smaller icon
+                  size: 32,
                   color: Colors.grey[300],
                 ),
               ),
 
-            // Rating badge (smaller)
-            // Positioned(
-            //   top: 6,
-            //   right: 6,
-            //   child: Container(
-            //     padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-            //     decoration: BoxDecoration(
-            //       color: Colors.black.withOpacity(0.7),
-            //       borderRadius: BorderRadius.circular(8),
-            //     ),
-            //     child: Row(
-            //       mainAxisSize: MainAxisSize.min,
-            //       children: [
-            //         const Icon(Icons.star, size: 12, color: Colors.amber),
-            //         const SizedBox(width: 2),
-            //         Text(
-            //           service.rating.toStringAsFixed(1),
-            //           style: const TextStyle(
-            //             color: Colors.white,
-            //             fontSize: 10, // Smaller font
-            //             fontWeight: FontWeight.w600,
-            //           ),
-            //         ),
-            //       ],
-            //     ),
-            //   ),
-            // ),
-
-            // Unavailable overlay (smaller)
+            // Unavailable Overlay
             if (!service.availability)
               Container(
                 color: Colors.black.withOpacity(0.3),
@@ -140,13 +118,16 @@ class ServiceContainer extends StatelessWidget {
                       horizontal: 6,
                       vertical: 2,
                     ),
-                    decoration: BoxDecoration(color: Colors.red[600]),
+                    decoration: BoxDecoration(
+                      color: Colors.red[600],
+                      borderRadius: BorderRadius.circular(4),
+                    ),
                     child: const Text(
                       'UNAVAILABLE',
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
-                        fontSize: 9, // Smaller font
+                        fontSize: 9,
                         letterSpacing: 0.8,
                       ),
                     ),
@@ -160,32 +141,30 @@ class ServiceContainer extends StatelessWidget {
   }
 
   Widget _buildTitleSection(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Column(
+      // crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
-          child: Text(
-            service.name,
-            style: const TextStyle(
-              fontSize: 14, // Smaller font
-              fontWeight: FontWeight.bold,
-              height: 1.3,
-            ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
+        Text(
+          service.name,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            height: 1.3,
           ),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
         ),
         const SizedBox(height: 4),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
-            color: Theme.of(context).primaryColor.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(10),
+            color: Theme.of(context).primaryColor.withOpacity(0.08),
+            borderRadius: BorderRadius.circular(8),
           ),
           child: Text(
             service.category,
             style: TextStyle(
-              fontSize: 10, // Smaller font
+              fontSize: 10,
               fontWeight: FontWeight.bold,
               color: Theme.of(context).primaryColor,
             ),
@@ -198,11 +177,11 @@ class ServiceContainer extends StatelessWidget {
   Widget _buildPriceRatingSection(BuildContext context) {
     return Row(
       children: [
-        // Price (smaller)
+        // Price
         Text(
           '\$${service.price.toStringAsFixed(2)}',
           style: TextStyle(
-            fontSize: 16, // Smaller font
+            fontSize: 16,
             fontWeight: FontWeight.w700,
             color: Theme.of(context).primaryColor,
           ),
@@ -210,23 +189,17 @@ class ServiceContainer extends StatelessWidget {
         const SizedBox(width: 4),
         Text(
           '/service',
-          style: TextStyle(
-            fontSize: 12, // Smaller font
-            color: Colors.grey[600],
-          ),
+          style: TextStyle(fontSize: 12, color: Colors.grey[600]),
         ),
         const Spacer(),
-        // Rating (smaller)
+        // Rating
         Row(
           children: [
             const Icon(Icons.star, size: 14, color: Colors.amber),
             const SizedBox(width: 2),
             Text(
               service.rating.toStringAsFixed(1),
-              style: const TextStyle(
-                fontSize: 12, // Smaller font
-                fontWeight: FontWeight.w600,
-              ),
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
             ),
           ],
         ),
@@ -239,16 +212,13 @@ class ServiceContainer extends StatelessWidget {
       children: [
         _buildMetaItem(
           icon: Icons.access_time,
-          size: 14, // Smaller icon
           text: '${service.duration} mins',
-          fontSize: 11, // Smaller font
+          color: Colors.grey[700],
         ),
         const SizedBox(width: 12),
         _buildMetaItem(
           icon: Icons.calendar_today,
-          size: 14, // Smaller icon
           text: service.availability ? 'Available' : 'Unavailable',
-          fontSize: 11, // Smaller font
           color: service.availability ? Colors.green : Colors.red,
         ),
       ],
@@ -258,18 +228,16 @@ class ServiceContainer extends StatelessWidget {
   Widget _buildMetaItem({
     required IconData icon,
     required String text,
-    double size = 16,
-    double fontSize = 13,
     Color? color,
   }) {
     return Row(
       children: [
-        Icon(icon, size: size, color: color ?? Colors.grey[600]),
+        Icon(icon, size: 14, color: color ?? Colors.grey[600]),
         const SizedBox(width: 4),
         Text(
           text,
           style: TextStyle(
-            fontSize: fontSize,
+            fontSize: 11,
             color: color ?? Colors.grey[700],
             fontWeight: FontWeight.w500,
           ),
@@ -278,33 +246,65 @@ class ServiceContainer extends StatelessWidget {
     );
   }
 
-  Widget _buildBookButton(BuildContext context) {
-    return SizedBox(
-      height: 32, // Smaller button
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Theme.of(context).primaryColor,
-          foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-          padding: EdgeInsets.zero,
-          elevation: 0,
-        ),
-        onPressed: service.availability ? onBookPressed : null,
-        child: const Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.book_online, size: 14), // Smaller icon
-            SizedBox(width: 4),
-            Text(
-              'Book Now',
-              style: TextStyle(
-                fontWeight: FontWeight.w500,
-                fontSize: 12, // Smaller font
+  Widget _buildDeleteButton(BuildContext context) {
+    return Positioned(
+      top: 8,
+      right: 8,
+      child: GestureDetector(
+        onTap: () => _showDeleteConfirmationDialog(context),
+        child: Container(
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            color: Colors.red.withOpacity(0.9),
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
               ),
-            ),
-          ],
+            ],
+          ),
+          child: const Icon(
+            Icons.delete_outline,
+            size: 18,
+            color: Colors.white,
+          ),
         ),
       ),
+    );
+  }
+
+  void _showDeleteConfirmationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            title: const Text(
+              'Delete Service',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            content: const Text(
+              'Are you sure you want to delete this service? This action cannot be undone.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  onDelete?.call();
+                },
+                style: TextButton.styleFrom(foregroundColor: Colors.red),
+                child: const Text('Delete'),
+              ),
+            ],
+          ),
     );
   }
 }
