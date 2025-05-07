@@ -1,38 +1,59 @@
 import 'package:hive/hive.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:service_booking/data/models/hive_service_model.dart';
+import 'package:service_booking/domain/entities/service_entity.dart';
 
 class HiveService {
-  static const String _servicesBox = 'servicesBox';
-  static const String _lastFetchTimeKey = 'lastFetchTime';
-  static const Duration cacheDuration = Duration(hours: 1);
+  static const String _boxName = 'servicesBox';
+  static const String _servicesKey = 'services';
+  static late Box<dynamic> _box;
 
   static Future<void> init() async {
-    final appDocumentDir = await getApplicationDocumentsDirectory();
-    Hive.init(appDocumentDir.path);
-    await Hive.openBox<dynamic>(_servicesBox);
+    _box = await Hive.openBox(_boxName);
   }
 
-  static Box<dynamic> get _box => Hive.box<dynamic>(_servicesBox);
+  static Future<void> cacheServices(List<ServiceEntity> services) async {
+    final hiveModels =
+        services
+            .map(
+              (entity) => HiveServiceModel(
+                id: entity.id,
+                name: entity.name,
+                category: entity.category,
+                price: entity.price,
+                imageUrl: entity.imageUrl,
+                availability: entity.availability,
+                duration: entity.duration,
+                rating: entity.rating,
+              ),
+            )
+            .toList();
 
-  static Future<void> cacheServices(List<dynamic> services) async {
-    await _box.put('services', services);
-    await _box.put(_lastFetchTimeKey, DateTime.now().toIso8601String());
+    await _box.put(_servicesKey, hiveModels);
   }
 
-  static List<dynamic>? getCachedServices() {
-    final lastFetchTime = _box.get(_lastFetchTimeKey);
-    if (lastFetchTime != null) {
-      final durationSinceLastFetch = DateTime.now().difference(
-        DateTime.parse(lastFetchTime),
-      );
-      if (durationSinceLastFetch < cacheDuration) {
-        return _box.get('services')?.toList();
+  static List<ServiceEntity>? getCachedServices() {
+    try {
+      final cachedData = _box.get(_servicesKey);
+      if (cachedData != null) {
+        return (cachedData as List<dynamic>)
+            .map(
+              (hiveModel) => ServiceEntity(
+                id: hiveModel.id,
+                name: hiveModel.name,
+                category: hiveModel.category,
+                price: hiveModel.price,
+                imageUrl: hiveModel.imageUrl,
+                availability: hiveModel.availability,
+                duration: hiveModel.duration,
+                rating: hiveModel.rating,
+              ),
+            )
+            .toList();
       }
+      return null;
+    } catch (e) {
+      print('Error getting cached services: $e');
+      return null;
     }
-    return null;
-  }
-
-  static Future<void> clearCache() async {
-    await _box.clear();
   }
 }

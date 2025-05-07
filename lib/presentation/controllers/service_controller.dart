@@ -9,7 +9,6 @@ import 'package:service_booking/domain/usecases/delete_service_usecase.dart';
 import 'package:service_booking/domain/usecases/get_service_usecase.dart';
 import 'package:service_booking/domain/usecases/get_services_usecase.dart';
 import 'package:service_booking/domain/usecases/update_service_usecase.dart';
-import 'package:service_booking/presentation/services/hive_service.dart';
 
 class ServiceController extends GetxController {
   final GetServicesUseCase getServicesUseCase;
@@ -44,38 +43,18 @@ class ServiceController extends GetxController {
 
   @override
   void onInit() {
-    HiveService.init().then((_) => fetchServices());
+    fetchServices();
     super.onInit();
   }
 
   Future<void> fetchServices() async {
     isLoading.value = true;
     errorMessage.value = '';
-
     try {
-      final cachedServices = HiveService.getCachedServices();
-      if (cachedServices != null) {
-        services.assignAll(cachedServices.cast<ServiceEntity>());
-      }
-
       final result = await getServicesUseCase();
       services.assignAll(result);
-
-      await HiveService.cacheServices(result);
     } catch (e) {
       errorMessage.value = 'Failed to fetch services: ${e.toString()}';
-
-      if (services.isEmpty) {
-        final cachedServices = HiveService.getCachedServices();
-        if (cachedServices != null) {
-          services.assignAll(cachedServices.cast<ServiceEntity>());
-          Get.snackbar(
-            'Offline Mode',
-            'Showing cached services',
-            snackPosition: SnackPosition.BOTTOM,
-          );
-        }
-      }
     } finally {
       isLoading.value = false;
     }
@@ -133,10 +112,6 @@ class ServiceController extends GetxController {
     try {
       await updateServiceUseCase(service.id!, service);
       await fetchServices();
-
-      // Clear form after successful update
-      _clearForm();
-
       Get.back();
       Get.snackbar('Success', 'Service updated successfully');
     } catch (e) {
@@ -155,17 +130,13 @@ class ServiceController extends GetxController {
         name: nameController.text,
         category: categoryController.text,
         price: double.parse(priceController.text),
-        imageUrl: imageFile.value?.path,
+        imageUrl: imageFile.value?.path, // Use local path or uploaded URL
         availability: availability.value,
         duration: int.parse(durationController.text),
       );
 
       await createServiceUseCase(service);
       await fetchServices();
-
-      // Clear form after successful creation
-      _clearForm();
-
       Get.back();
       Get.snackbar('Success', 'Service created successfully');
     } catch (e) {
@@ -173,16 +144,6 @@ class ServiceController extends GetxController {
     } finally {
       isLoading.value = false;
     }
-  }
-
-  void _clearForm() {
-    nameController.clear();
-    categoryController.clear();
-    priceController.clear();
-    durationController.clear();
-    availability.value = true;
-    imageFile.value = null;
-    formKey.currentState?.reset();
   }
 
   @override
