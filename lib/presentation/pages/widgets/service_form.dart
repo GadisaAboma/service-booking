@@ -159,10 +159,10 @@ class ServiceForm extends StatelessWidget {
           style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
         ),
         const SizedBox(height: 4),
-        Text(
-          'Recommended: 1200x1200px',
-          style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
-        ),
+        // Text(
+        //   'Recommended: 1200x1200px',
+        //   style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+        // ),
       ],
     );
   }

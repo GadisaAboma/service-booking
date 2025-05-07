@@ -1,12 +1,12 @@
 class ServiceEntity {
-  final String? id;
-  final String name;
-  final String category;
-  final double price;
-  final String? imageUrl;
-  final bool availability;
-  final int duration; // in minutes
-  final double rating; // 1-5
+   String? id;
+   String name;
+   String category;
+   double price;
+   String? imageUrl;
+   bool availability;
+   int duration; // in minutes
+   double rating; // 1-5
 
   ServiceEntity({
     this.id,

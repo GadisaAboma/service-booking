@@ -87,9 +87,10 @@ class _ServiceDetailPageState extends State<ServiceDetailPage> {
   }
 
   void _navigateToEdit(BuildContext context, String serviceId) {
-    Navigator.of(context)
-        .pushNamed(AppRoutes.editService, arguments: serviceId)
-        .then((_) => Get.find<ServiceController>().fetchService(serviceId));
+    Get.toNamed(AppRoutes.editService, arguments: serviceId)?.then((_) {
+      // Refresh the service details after returning from edit
+      Get.find<ServiceController>().fetchService(serviceId);
+    });
   }
 
   Widget _buildServiceContent(BuildContext context, ServiceEntity service) {
@@ -152,6 +153,11 @@ class _ServiceDetailPageState extends State<ServiceDetailPage> {
           icon: Icons.calendar_today,
           color: service.availability ? Colors.green : Colors.red,
           label: service.availability ? 'Available' : 'Unavailable',
+        ),
+        _buildDetailChip(
+          icon: Icons.attach_money_outlined,
+          color: Colors.purple,
+          label: service.price.toString(),
         ),
       ],
     ).animate().fadeIn(delay: 300.ms);

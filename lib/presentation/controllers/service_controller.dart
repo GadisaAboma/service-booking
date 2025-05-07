@@ -8,16 +8,19 @@ import 'package:service_booking/domain/entities/service_entity.dart';
 import 'package:service_booking/domain/usecases/create_service_usecase.dart';
 import 'package:service_booking/domain/usecases/get_service_usecase.dart';
 import 'package:service_booking/domain/usecases/get_services_usecase.dart';
+import 'package:service_booking/domain/usecases/update_service_usecase.dart';
 
 class ServiceController extends GetxController {
   final GetServicesUseCase getServicesUseCase;
   final GetServiceUseCase getServiceUseCase;
   final CreateServiceUseCase createServiceUseCase;
+  final UpdateServiceUseCase updateServiceUseCase;
 
   ServiceController(
     this.getServicesUseCase,
     this.getServiceUseCase,
     this.createServiceUseCase,
+    this.updateServiceUseCase,
   );
 
   final services = <ServiceEntity>[].obs;
@@ -25,8 +28,9 @@ class ServiceController extends GetxController {
   final isLoading = false.obs;
   final imageFile = Rxn<File>();
   final isImageUploading = false.obs;
+  final errorMessage = ''.obs;
+  final isUpdating = false.obs;
 
-  // Form controllers
   final formKey = GlobalKey<FormState>();
   final nameController = TextEditingController();
   final categoryController = TextEditingController();
@@ -42,11 +46,12 @@ class ServiceController extends GetxController {
 
   Future<void> fetchServices() async {
     isLoading.value = true;
+    errorMessage.value = '';
     try {
       final result = await getServicesUseCase();
       services.assignAll(result);
     } catch (e) {
-      Get.snackbar('Error', 'Failed to fetch services: ${e.toString()}');
+      errorMessage.value = 'Failed to fetch services: ${e.toString()}';
     } finally {
       isLoading.value = false;
     }
@@ -63,29 +68,6 @@ class ServiceController extends GetxController {
     }
   }
 
-  Future<void> uploadImage() async {
-    if (imageFile.value == null) return;
-
-    isImageUploading.value = true;
-    try {
-      // Here you would implement actual image upload to your server
-      // For demo purposes, we'll just copy the file to app directory
-      final appDir = await getApplicationDocumentsDirectory();
-      final fileName = basename(imageFile.value!.path);
-      final savedImage = await imageFile.value!.copy(
-        '${appDir.path}/$fileName',
-      );
-
-      // In real app, you would upload to your server and get the URL
-      // For now we'll just use the local path
-      Get.snackbar('Success', 'Image uploaded successfully');
-    } catch (e) {
-      Get.snackbar('Error', 'Failed to upload image: ${e.toString()}');
-    } finally {
-      isImageUploading.value = false;
-    }
-  }
-
   Future<void> fetchService(String id) async {
     isLoading.value = true;
     try {
@@ -96,6 +78,20 @@ class ServiceController extends GetxController {
       Get.snackbar('Error', 'Failed to fetch service: ${e.toString()}');
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  Future<void> updateService(ServiceEntity service) async {
+    isUpdating.value = true;
+    try {
+      await updateServiceUseCase(service.id!, service);
+      await fetchServices();
+      Get.back();
+      Get.snackbar('Success', 'Service updated successfully');
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to update service: ${e.toString()}');
+    } finally {
+      isUpdating.value = false;
     }
   }
 

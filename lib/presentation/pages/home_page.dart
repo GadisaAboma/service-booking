@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:service_booking/core/routes/app_routes.dart';
 import 'package:service_booking/presentation/controllers/service_controller.dart';
 import 'package:service_booking/presentation/pages/widgets/fade_animation.dart';
-import 'package:service_booking/presentation/pages/widgets/service_container.dart'; // Import the new container
+import 'package:service_booking/presentation/pages/widgets/service_container.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -25,17 +25,34 @@ class HomePage extends StatelessWidget {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.add),
+            icon: const Icon(Icons.add, color: Colors.black),
             onPressed: () => Get.toNamed(AppRoutes.addService),
           ),
         ],
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+            ),
+          );
+        }
+
+        if (controller.errorMessage.value.isNotEmpty) {
+          return _ErrorWidget(
+            errorMessage: controller.errorMessage.value,
+            onRetry: () => controller.fetchServices(),
+          );
+        }
+
+        if (controller.services.isEmpty) {
+          return _EmptyStateWidget(onRefresh: () => controller.fetchServices());
         }
 
         return RefreshIndicator(
+          color: Colors.blue,
           onRefresh: () => controller.fetchServices(),
           child: ListView.builder(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -69,6 +86,101 @@ class HomePage extends StatelessWidget {
           ),
         );
       }),
+    );
+  }
+}
+
+// --- Custom Error Widget ---
+class _ErrorWidget extends StatelessWidget {
+  final String errorMessage;
+  final VoidCallback onRetry;
+
+  const _ErrorWidget({required this.errorMessage, required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.error_outline, size: 60, color: Colors.red[400]),
+          const SizedBox(height: 16),
+          Text(
+            "Something went wrong!",
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey[800],
+            ),
+          ),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Text(
+              errorMessage,
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+            ),
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            ),
+            onPressed: onRetry,
+            child: const Text("Retry", style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// --- Custom Empty State Widget ---
+class _EmptyStateWidget extends StatelessWidget {
+  final VoidCallback onRefresh;
+
+  const _EmptyStateWidget({required this.onRefresh});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.search_off, size: 60, color: Colors.blue[300]),
+          const SizedBox(height: 16),
+          Text(
+            "No Services Available",
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey[800],
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            "Check back later or add a new service",
+            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            ),
+            onPressed: onRefresh,
+            child: const Text("Refresh", style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
     );
   }
 }

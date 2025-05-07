@@ -11,7 +11,7 @@ class RemoteDataSource {
   RemoteDataSource({required this.baseUrl, required this.client});
 
   Future<List<ServiceModel>> getServices() async {
-    final response = await client.get(Uri.parse('$baseUrl/services'));
+    final response = await client.get(Uri.parse('$baseUrl/products'));
 
     logger(json.decode(response.body));
 
@@ -25,7 +25,7 @@ class RemoteDataSource {
 
   Future<ServiceModel> getService(String id) async {
     logger("in here");
-    final response = await client.get(Uri.parse('$baseUrl/services/$id'));
+    final response = await client.get(Uri.parse('$baseUrl/products/$id'));
     logger(json.decode(response.body));
     if (response.statusCode == 200) {
       return ServiceModel.fromJson(json.decode(response.body));
@@ -36,7 +36,7 @@ class RemoteDataSource {
 
   Future<void> createService(ServiceModel service) async {
     final response = await client.post(
-      Uri.parse('$baseUrl/services'),
+      Uri.parse('$baseUrl/products'),
       body: json.encode(service.toJson()),
       headers: {'Content-Type': 'application/json'},
     );
@@ -46,18 +46,23 @@ class RemoteDataSource {
   }
 
   Future<void> updateService(String id, ServiceModel service) async {
+    logger("in here updating...");
+    logger(id);
     final response = await client.put(
-      Uri.parse('$baseUrl/services/$id'),
+      Uri.parse('$baseUrl/products/$id'),
       body: json.encode(service.toJson()),
       headers: {'Content-Type': 'application/json'},
     );
+
+    logger(response.body);
+
     if (response.statusCode != 200) {
       throw Exception('Failed to update service');
     }
   }
 
   Future<void> deleteService(String id) async {
-    final response = await client.delete(Uri.parse('$baseUrl/services/$id'));
+    final response = await client.delete(Uri.parse('$baseUrl/products/$id'));
     if (response.statusCode != 200) {
       throw Exception('Failed to delete service');
     }
