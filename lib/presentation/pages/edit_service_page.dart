@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:service_booking/core/utils/validators.dart';
 import 'package:service_booking/domain/entities/service_entity.dart';
 import 'package:service_booking/presentation/controllers/service_controller.dart';
+import 'package:service_booking/presentation/pages/widgets/category_dropdown.dart';
 
 class EditServicePage extends StatefulWidget {
   const EditServicePage({super.key});
@@ -368,16 +369,18 @@ class _EditServicePageState extends State<EditServicePage> {
           ),
           const SizedBox(height: 16),
           _buildAnimatedFormField(
-            TextFormField(
-              controller: controller.categoryController,
-              decoration: _inputDecoration(
-                context,
-                'Category',
-                Icons.category_outlined,
-              ),
-              validator:
-                  (value) =>
-                      Validators.validateRequired(value, fieldName: 'Category'),
+            CategoryDropdown(
+              controller: controller,
+              predefinedCategories: const [
+                'Cleaning',
+                'Repair',
+                'Beauty',
+                'Moving',
+                'Electrical',
+                'Plumbing',
+                'Catering',
+                'Other',
+              ],
             ),
           ),
           const SizedBox(height: 16),

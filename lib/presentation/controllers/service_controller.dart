@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:debounce_throttle/debounce_throttle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -26,6 +27,7 @@ class ServiceController extends GetxController {
   );
 
   final services = <ServiceEntity>[].obs;
+  final filteredServices = <ServiceEntity>[].obs;
   final selectedService = Rxn<ServiceEntity>();
   final isLoading = false.obs;
   final imageFile = Rxn<File>();
@@ -34,17 +36,85 @@ class ServiceController extends GetxController {
   final errorMessage = ''.obs;
   final isUpdating = false.obs;
 
+  final categoryController = TextEditingController();
+  final RxString _selectedCategory = ''.obs;
+
+  String get selectedCategory => _selectedCategory.value;
+  set selectedCategory(String value) {
+    _selectedCategory.value = value;
+    categoryController.text = value;
+  }
+
   final formKey = GlobalKey<FormState>();
   final nameController = TextEditingController();
-  final categoryController = TextEditingController();
   final priceController = TextEditingController();
   final durationController = TextEditingController();
   final availability = true.obs;
 
+  final searchController = TextEditingController();
+  final searchDebouncer = Debouncer<String>(
+    const Duration(milliseconds: 500),
+    initialValue: '',
+  );
+  final selectedCategories = <String>[].obs;
+  final minPrice = Rx<double?>(null);
+  final maxPrice = Rx<double?>(null);
+  final minRating = Rx<double?>(null);
+
   @override
   void onInit() {
     fetchServices();
+    // Setup debouncer listener
+    searchDebouncer.values.listen((searchTerm) {
+      applyFilters();
+    });
     super.onInit();
+  }
+
+  bool get hasFilters {
+    return searchController.text.isNotEmpty ||
+        selectedCategories.isNotEmpty ||
+        minPrice.value != null ||
+        maxPrice.value != null ||
+        minRating.value != null;
+  }
+
+  void clearAllFilters() {
+    searchController.clear();
+    selectedCategories.clear();
+    minPrice.value = null;
+    maxPrice.value = null;
+    minRating.value = null;
+    applyFilters();
+  }
+
+  List<String> get allCategories {
+    return services.map((s) => s.category).toSet().toList();
+  }
+
+  void applyFilters() {
+    filteredServices.assignAll(
+      services.where((service) {
+        final searchMatch =
+            searchController.text.isEmpty ||
+            service.name.toLowerCase().contains(
+              searchController.text.toLowerCase(),
+            );
+
+        final categoryMatch =
+            selectedCategories.isEmpty ||
+            selectedCategories.contains(service.category);
+
+        final priceMatch =
+            (minPrice.value == null || service.price >= minPrice.value!) &&
+            (maxPrice.value == null || service.price <= maxPrice.value!);
+
+        final ratingMatch =
+            minRating.value == null || service.rating >= minRating.value!;
+
+        return searchMatch && categoryMatch && priceMatch && ratingMatch;
+      }).toList(),
+    );
   }
 
   Future<void> fetchServices() async {
@@ -53,6 +123,9 @@ class ServiceController extends GetxController {
     try {
       final result = await getServicesUseCase();
       services.assignAll(result);
+      filteredServices.assignAll(
+        result,
+      ); // Initialize filtered list with all services
     } catch (e) {
       errorMessage.value = 'Failed to fetch services: ${e.toString()}';
     } finally {
@@ -76,6 +149,7 @@ class ServiceController extends GetxController {
     try {
       await deleteServiceUseCase(id);
       services.removeWhere((service) => service.id == id);
+      applyFilters(); // Update filtered list after deletion
       Get.snackbar(
         'Success',
         'Service deleted successfully',
@@ -130,7 +204,7 @@ class ServiceController extends GetxController {
         name: nameController.text,
         category: categoryController.text,
         price: double.parse(priceController.text),
-        imageUrl: imageFile.value?.path, // Use local path or uploaded URL
+        imageUrl: imageFile.value?.path,
         availability: availability.value,
         duration: int.parse(durationController.text),
       );
@@ -152,6 +226,8 @@ class ServiceController extends GetxController {
     categoryController.dispose();
     priceController.dispose();
     durationController.dispose();
+    searchController.dispose();
+    searchDebouncer.cancel();
     super.onClose();
   }
 }

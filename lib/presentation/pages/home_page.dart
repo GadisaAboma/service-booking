@@ -3,9 +3,21 @@ import 'package:get/get.dart';
 import 'package:service_booking/core/routes/app_routes.dart';
 import 'package:service_booking/presentation/controllers/service_controller.dart';
 import 'package:service_booking/presentation/pages/widgets/fade_animation.dart';
+import 'package:service_booking/presentation/pages/widgets/search_and_filter_widget.dart';
 import 'package:service_booking/presentation/pages/widgets/service_container.dart';
 
 class HomePage extends StatelessWidget {
+  final List<String> categories = const [
+    'Cleaning',
+    'Repair',
+    'Beauty',
+    'Moving',
+    'Electrical',
+    'Plumbing',
+    'Catering',
+    'Other',
+  ];
+
   const HomePage({super.key});
 
   @override
@@ -30,68 +42,120 @@ class HomePage extends StatelessWidget {
           ),
         ],
       ),
-      body: Obx(() {
-        if (controller.isLoading.value) {
-          return const Center(
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-            ),
-          );
-        }
+      body: Column(
+        children: [
+          // Search and Filter Bar
+          SearchAndFilterBar(controller: controller, categories: categories),
 
-        if (controller.errorMessage.value.isNotEmpty) {
-          return _ErrorWidget(
-            errorMessage: controller.errorMessage.value,
-            onRetry: () => controller.fetchServices(),
-          );
-        }
-
-        if (controller.services.isEmpty) {
-          return _EmptyStateWidget(onRefresh: () => controller.fetchServices());
-        }
-
-        return RefreshIndicator(
-          color: Colors.blue,
-          onRefresh: () => controller.fetchServices(),
-          child: ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            itemCount: controller.services.length,
-            itemBuilder: (context, index) {
-              final service = controller.services[index];
-              return FadeInAnimation(
-                delay: Duration(milliseconds: 100 * index),
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: ServiceContainer(
-                    service: service,
-                    onDelete: () => controller.deleteService(service.id!),
-                    onTap:
-                        () => Get.toNamed(
-                          AppRoutes.serviceDetail,
-                          arguments: service.id,
-                        ),
-                    onBookPressed:
-                        service.availability
-                            ? () {
-                              // Get.toNamed(
-                              //   AppRoutes.booking,
-                              //   arguments: service.id,
-                              // );
-                            }
-                            : null,
+          // Services List
+          Expanded(
+            child: Obx(() {
+              if (controller.isLoading.value) {
+                return const Center(
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
                   ),
+                );
+              }
+
+              if (controller.errorMessage.value.isNotEmpty) {
+                return _ErrorWidget(
+                  errorMessage: controller.errorMessage.value,
+                  onRetry: () => controller.fetchServices(),
+                );
+              }
+
+              if (controller.services.isEmpty) {
+                return _EmptyStateWidget(
+                  onRefresh: () => controller.fetchServices(),
+                );
+              }
+
+              if (controller.filteredServices.isEmpty) {
+                return _NoResultsWidget(
+                  onClearFilters: () => controller.clearAllFilters(),
+                );
+              }
+
+              return RefreshIndicator(
+                color: Colors.blue,
+                onRefresh: () => controller.fetchServices(),
+                child: ListView.builder(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  itemCount: controller.filteredServices.length,
+                  itemBuilder: (context, index) {
+                    final service = controller.filteredServices[index];
+                    return FadeInAnimation(
+                      delay: Duration(milliseconds: 100 * index),
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: ServiceContainer(
+                          service: service,
+                          onDelete: () => controller.deleteService(service.id!),
+                          onTap:
+                              () => Get.toNamed(
+                                AppRoutes.serviceDetail,
+                                arguments: service.id,
+                              ),
+                          onBookPressed:
+                              service.availability
+                                  ? () {
+                                    // Get.toNamed(
+                                    //   AppRoutes.booking,
+                                    //   arguments: service.id,
+                                    // );
+                                  }
+                                  : null,
+                        ),
+                      ),
+                    );
+                  },
                 ),
               );
-            },
+            }),
           ),
-        );
-      }),
+        ],
+      ),
     );
   }
 }
 
-// --- Custom Error Widget ---
+class _NoResultsWidget extends StatelessWidget {
+  final VoidCallback onClearFilters;
+
+  const _NoResultsWidget({required this.onClearFilters});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.search_off, size: 60, color: Colors.grey[400]),
+          const SizedBox(height: 16),
+          const Text(
+            'No services found',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey,
+            ),
+          ),
+          const SizedBox(height: 8),
+          TextButton(
+            onPressed: onClearFilters,
+            child: const Text('Clear all filters'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _ErrorWidget extends StatelessWidget {
   final String errorMessage;
   final VoidCallback onRetry;

@@ -142,7 +142,7 @@ class ServiceContainer extends StatelessWidget {
 
   Widget _buildTitleSection(BuildContext context) {
     return Column(
-      // crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           service.name,
