@@ -27,9 +27,9 @@ class ServiceContainer extends StatelessWidget {
             borderRadius: BorderRadius.circular(10),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.04),
+                color: Colors.black.withValues(alpha: 0.04),
                 blurRadius: 8,
-                offset: const Offset(0, 2),
+                offset: const Offset(0, 5),
               ),
             ],
           ),
@@ -64,7 +64,7 @@ class ServiceContainer extends StatelessWidget {
                       const SizedBox(height: 8),
 
                       // Book button
-                      if (onBookPressed != null) _buildBookButton(context),
+                      // if (onBookPressed != null) _buildBookButton(context),
                     ],
                   ),
                 ),
@@ -168,7 +168,7 @@ class ServiceContainer extends StatelessWidget {
             service.name,
             style: const TextStyle(
               fontSize: 14, // Smaller font
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.bold,
               height: 1.3,
             ),
             maxLines: 2,
@@ -186,7 +186,7 @@ class ServiceContainer extends StatelessWidget {
             service.category,
             style: TextStyle(
               fontSize: 10, // Smaller font
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.bold,
               color: Theme.of(context).primaryColor,
             ),
           ),

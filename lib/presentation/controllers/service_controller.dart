@@ -86,6 +86,19 @@ class ServiceController extends GetxController {
     }
   }
 
+  Future<void> fetchService(String id) async {
+    isLoading.value = true;
+    try {
+      final result = await getServiceUseCase(id);
+      selectedService.value = result;
+    } catch (e) {
+      selectedService.value = null;
+      Get.snackbar('Error', 'Failed to fetch service: ${e.toString()}');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
   Future<void> createService() async {
     if (!formKey.currentState!.validate()) return;
 

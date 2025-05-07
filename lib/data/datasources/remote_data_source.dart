@@ -24,6 +24,7 @@ class RemoteDataSource {
   }
 
   Future<ServiceModel> getService(String id) async {
+    logger("in here");
     final response = await client.get(Uri.parse('$baseUrl/services/$id'));
     logger(json.decode(response.body));
     if (response.statusCode == 200) {
