@@ -3,7 +3,6 @@ import 'package:debounce_throttle/debounce_throttle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-
 import 'package:service_booking/domain/entities/service_entity.dart';
 import 'package:service_booking/domain/usecases/create_service_usecase.dart';
 import 'package:service_booking/domain/usecases/delete_service_usecase.dart';
@@ -26,31 +25,30 @@ class ServiceController extends GetxController {
     this.deleteServiceUseCase,
   );
 
+  // State variables
   final services = <ServiceEntity>[].obs;
   final filteredServices = <ServiceEntity>[].obs;
   final selectedService = Rxn<ServiceEntity>();
   final isLoading = false.obs;
+  final isLoadingMore = false.obs;
   final imageFile = Rxn<File>();
-  final isImageUploading = false.obs;
   final isDeleting = false.obs;
   final errorMessage = ''.obs;
   final isUpdating = false.obs;
+  final currentPage = 1.obs;
+  final itemsPerPage = 10.obs;
+  final hasMore = true.obs;
 
-  final categoryController = TextEditingController();
-  final RxString _selectedCategory = ''.obs;
-
-  String get selectedCategory => _selectedCategory.value;
-  set selectedCategory(String value) {
-    _selectedCategory.value = value;
-    categoryController.text = value;
-  }
-
+  // Form controllers
   final formKey = GlobalKey<FormState>();
   final nameController = TextEditingController();
+  final categoryController = TextEditingController();
   final priceController = TextEditingController();
   final durationController = TextEditingController();
   final availability = true.obs;
+  final _selectedCategory = ''.obs;
 
+  // Search and filter controllers
   final searchController = TextEditingController();
   final searchDebouncer = Debouncer<String>(
     const Duration(milliseconds: 500),
@@ -61,25 +59,40 @@ class ServiceController extends GetxController {
   final maxPrice = Rx<double?>(null);
   final minRating = Rx<double?>(null);
 
-  final currentPage = 1.obs;
-  final itemsPerPage = 10.obs;
-  final hasMore = true.obs;
+  // Getters
+  String get selectedCategory => _selectedCategory.value;
+  List<String> get allCategories =>
+      services.map((s) => s.category).toSet().toList();
+
+  bool get hasFilters =>
+      searchController.text.isNotEmpty ||
+      selectedCategories.isNotEmpty ||
+      minPrice.value != null ||
+      maxPrice.value != null ||
+      minRating.value != null;
 
   @override
   void onInit() {
     fetchServices();
-    searchDebouncer.values.listen((searchTerm) {
-      applyFilters();
-    });
+    searchDebouncer.values.listen((_) => applyFilters());
     super.onInit();
   }
 
-  bool get hasFilters {
-    return searchController.text.isNotEmpty ||
-        selectedCategories.isNotEmpty ||
-        minPrice.value != null ||
-        maxPrice.value != null ||
-        minRating.value != null;
+  @override
+  void onClose() {
+    nameController.dispose();
+    categoryController.dispose();
+    priceController.dispose();
+    durationController.dispose();
+    searchController.dispose();
+    searchDebouncer.cancel();
+    super.onClose();
+  }
+
+  // Form methods
+  void set selectedCategory(String value) {
+    _selectedCategory.value = value;
+    categoryController.text = value;
   }
 
   void _clearForm() {
@@ -90,7 +103,6 @@ class ServiceController extends GetxController {
     availability.value = true;
     imageFile.value = null;
     formKey.currentState?.reset();
-    update();
   }
 
   void clearAllFilters() {
@@ -102,10 +114,7 @@ class ServiceController extends GetxController {
     applyFilters();
   }
 
-  List<String> get allCategories {
-    return services.map((s) => s.category).toSet().toList();
-  }
-
+  // Filtering methods
   void applyFilters() {
     filteredServices.assignAll(
       services.where((service) {
@@ -131,14 +140,16 @@ class ServiceController extends GetxController {
     );
   }
 
+  // Data fetching methods
   Future<void> fetchServices({bool loadMore = false}) async {
-    if (loadMore) {
-      currentPage.value++;
-    } else {
-      currentPage.value = 1;
+    if (!loadMore) {
       isLoading.value = true;
+      currentPage.value = 1;
       services.clear();
       filteredServices.clear();
+    } else {
+      isLoadingMore.value = true;
+      currentPage.value++;
     }
 
     errorMessage.value = '';
@@ -149,29 +160,24 @@ class ServiceController extends GetxController {
       );
 
       services.addAll(result);
-      filteredServices.addAll(result);
-
+      applyFilters();
       hasMore.value = result.length >= itemsPerPage.value;
-
-      if (loadMore) {
-        applyFilters();
-      }
     } catch (e) {
       errorMessage.value = 'Failed to fetch services: ${e.toString()}';
-      if (loadMore) {
-        currentPage.value--;
-      }
+      if (loadMore) currentPage.value--;
     } finally {
       isLoading.value = false;
+      isLoadingMore.value = false;
     }
   }
 
   Future<void> loadMoreServices() async {
-    if (!isLoading.value && hasMore.value) {
+    if (!isLoadingMore.value && hasMore.value) {
       await fetchServices(loadMore: true);
     }
   }
 
+  // Image handling
   Future<void> pickImage(ImageSource source) async {
     try {
       final pickedFile = await ImagePicker().pickImage(source: source);
@@ -183,12 +189,13 @@ class ServiceController extends GetxController {
     }
   }
 
+  // CRUD operations
   Future<void> deleteService(String id) async {
     isDeleting.value = true;
     try {
       await deleteServiceUseCase(id);
       services.removeWhere((service) => service.id == id);
-      applyFilters(); // Update filtered list after deletion
+      applyFilters();
       Get.snackbar(
         'Success',
         'Service deleted successfully',
@@ -226,7 +233,6 @@ class ServiceController extends GetxController {
       await updateServiceUseCase(service.id!, service);
       await fetchServices();
       _clearForm();
-
       Get.back();
       Get.snackbar('Success', 'Service updated successfully');
     } catch (e) {
@@ -260,16 +266,5 @@ class ServiceController extends GetxController {
     } finally {
       isLoading.value = false;
     }
-  }
-
-  @override
-  void onClose() {
-    nameController.dispose();
-    categoryController.dispose();
-    priceController.dispose();
-    durationController.dispose();
-    searchController.dispose();
-    searchDebouncer.cancel();
-    super.onClose();
   }
 }

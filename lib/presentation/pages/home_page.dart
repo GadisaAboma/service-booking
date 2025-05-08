@@ -7,7 +7,7 @@ import 'package:service_booking/presentation/pages/widgets/fade_animation.dart';
 import 'package:service_booking/presentation/pages/widgets/search_and_filter_widget.dart';
 import 'package:service_booking/presentation/pages/widgets/service_container.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   final List<String> categories = const [
     'Cleaning',
     'Repair',
@@ -22,17 +22,18 @@ class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final controller = Get.find<ServiceController>();
-    final scrollController = ScrollController();
+  State<HomePage> createState() => _HomePageState();
+}
 
-    // Initialize scroll listener for pagination
-    scrollController.addListener(() {
-      if (scrollController.position.pixels ==
-          scrollController.position.maxScrollExtent) {
-        controller.loadMoreServices();
-      }
-    });
+class _HomePageState extends State<HomePage> {
+  final controller = Get.find<ServiceController>();
+  late final ScrollController scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    scrollController = ScrollController();
+    scrollController.addListener(_scrollListener);
 
     // Handle connectivity changes
     Connectivity().onConnectivityChanged.listen((result) {
@@ -42,7 +43,26 @@ class HomePage extends StatelessWidget {
         }
       }
     });
+  }
 
+  void _scrollListener() {
+    if (scrollController.position.pixels >=
+            scrollController.position.maxScrollExtent - 200 &&
+        !controller.isLoadingMore.value &&
+        controller.hasMore.value) {
+      controller.loadMoreServices();
+    }
+  }
+
+  @override
+  void dispose() {
+    scrollController.removeListener(_scrollListener);
+    scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -86,7 +106,10 @@ class HomePage extends StatelessWidget {
       ),
       body: Column(
         children: [
-          SearchAndFilterBar(controller: controller, categories: categories),
+          SearchAndFilterBar(
+            controller: controller,
+            categories: widget.categories,
+          ),
           Expanded(
             child: Obx(() {
               if (controller.isLoading.value &&
@@ -138,8 +161,13 @@ class HomePage extends StatelessWidget {
                         child: Center(
                           child: Obx(
                             () =>
-                                controller.isLoading.value
-                                    ? const CircularProgressIndicator()
+                                controller.isLoadingMore.value
+                                    ? const CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.blue,
+                                      ),
+                                    )
                                     : const SizedBox(),
                           ),
                         ),
