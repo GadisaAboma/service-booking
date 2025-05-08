@@ -2,7 +2,6 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:service_booking/core/routes/app_routes.dart';
-import 'package:service_booking/core/utils/logger.dart';
 import 'package:service_booking/presentation/controllers/service_controller.dart';
 import 'package:service_booking/presentation/pages/widgets/fade_animation.dart';
 import 'package:service_booking/presentation/pages/widgets/search_and_filter_widget.dart';
@@ -25,6 +24,15 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<ServiceController>();
+
+    Connectivity().onConnectivityChanged.listen((result) {
+      if (!result.contains(ConnectivityResult.none)) {
+        if (controller.services.isNotEmpty) {
+          controller.fetchServices();
+        }
+      }
+    });
+
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -40,19 +48,24 @@ class HomePage extends StatelessWidget {
         actions: [
           StreamBuilder<List<ConnectivityResult>>(
             stream: Connectivity().onConnectivityChanged,
+            initialData: [ConnectivityResult.none],
             builder: (context, snapshot) {
               final isOffline =
-                  snapshot.data?.contains(ConnectivityResult.none) ?? false;
-              if (isOffline) {
-                return Container(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                  child: const Center(child: Icon(Icons.wifi_off)),
-                );
-              } else {
-                controller.fetchServices();
-              }
-
-              return const SizedBox();
+                  snapshot.data?.contains(ConnectivityResult.none) ?? true;
+              return AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                child:
+                    isOffline
+                        ? Container(
+                          key: const ValueKey('offline'),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 4,
+                            horizontal: 8,
+                          ),
+                          child: const Icon(Icons.wifi_off, color: Colors.red),
+                        )
+                        : const SizedBox(key: ValueKey('online')),
+              );
             },
           ),
           IconButton(
@@ -61,11 +74,9 @@ class HomePage extends StatelessWidget {
           ),
         ],
       ),
-
       body: Column(
         children: [
           SearchAndFilterBar(controller: controller, categories: categories),
-
           Expanded(
             child: Obx(() {
               if (controller.isLoading.value) {
@@ -113,17 +124,31 @@ class HomePage extends StatelessWidget {
                         padding: const EdgeInsets.only(bottom: 16),
                         child: ServiceContainer(
                           service: service,
-                          onDelete: () => controller.deleteService(service.id!),
-                          onTap: () async {
-                            var connectivityResult =
+                          onDelete: () async {
+                            final connectivityResult =
                                 await Connectivity().checkConnectivity();
-
                             if (connectivityResult.contains(
                               ConnectivityResult.none,
                             )) {
                               Get.snackbar(
                                 'No Internet Connection',
-                                'Supported only on wifi or data connection',
+                                'Please connect to internet to delete the service',
+                                backgroundColor: Colors.red,
+                                colorText: Colors.white,
+                              );
+                              return;
+                            }
+                            controller.deleteService(service.id!);
+                          },
+                          onTap: () async {
+                            final connectivityResult =
+                                await Connectivity().checkConnectivity();
+                            if (connectivityResult.contains(
+                              ConnectivityResult.none,
+                            )) {
+                              Get.snackbar(
+                                'No Internet Connection',
+                                'Please connect to view service details',
                                 backgroundColor: Colors.red,
                                 colorText: Colors.white,
                               );
@@ -134,15 +159,6 @@ class HomePage extends StatelessWidget {
                               arguments: service.id,
                             );
                           },
-                          onBookPressed:
-                              service.availability
-                                  ? () {
-                                    // Get.toNamed(
-                                    //   AppRoutes.booking,
-                                    //   arguments: service.id,
-                                    // );
-                                  }
-                                  : null,
                         ),
                       ),
                     );
@@ -238,7 +254,6 @@ class _ErrorWidget extends StatelessWidget {
   }
 }
 
-// --- Custom Empty State Widget ---
 class _EmptyStateWidget extends StatelessWidget {
   final VoidCallback onRefresh;
 
@@ -271,9 +286,9 @@ class _EmptyStateWidget extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           ElevatedButton.icon(
-            icon: Icon(Icons.add, color: Colors.white),
+            icon: const Icon(Icons.add, color: Colors.white),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(Get.context!).primaryColor,
+              backgroundColor: Theme.of(context).primaryColor,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),

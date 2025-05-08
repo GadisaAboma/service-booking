@@ -19,14 +19,11 @@ class CategoryDropdown extends StatelessWidget {
     return Obx(() {
       final currentCategory = controller.selectedCategory;
 
-      final categories =
-          List<String>.from(predefinedCategories)
-            ..addIf(
-              !predefinedCategories.contains(currentCategory) &&
-                  currentCategory.isNotEmpty,
-              currentCategory,
-            )
-            ..sort((a, b) => a.compareTo(b)); // Optional: sort alphabetically
+      final categories = List<String>.from(predefinedCategories)..addIf(
+        !predefinedCategories.contains(currentCategory) &&
+            currentCategory.isNotEmpty,
+        currentCategory,
+      );
 
       return DropdownButtonFormField<String>(
         value: selectedCategory,

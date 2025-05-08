@@ -84,7 +84,7 @@ class SearchAndFilterBar extends StatelessWidget {
       selected: controller.selectedCategories.isNotEmpty,
       onSelected: (_) => _showCategoryDialog(context),
       backgroundColor: Colors.white,
-      selectedColor: FilterDialogTheme.selectedColor.withOpacity(0.2),
+      selectedColor: FilterDialogTheme.selectedColor.withValues(alpha: 0.2),
       checkmarkColor: FilterDialogTheme.selectedColor,
       labelStyle: TextStyle(
         color:
@@ -215,7 +215,10 @@ class SearchAndFilterBar extends StatelessWidget {
             context,
           ).copyWith(dialogTheme: FilterDialogTheme.dialogTheme(context)),
           child: AlertDialog(
-            title: Text('Price Range', style: FilterDialogTheme.titleStyle),
+            title: Text(
+              'Price Range(ETB)',
+              style: FilterDialogTheme.titleStyle,
+            ),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -223,7 +226,6 @@ class SearchAndFilterBar extends StatelessWidget {
                   controller: minController,
                   decoration: const InputDecoration(
                     labelText: 'Minimum Price',
-                    prefixText: '\$',
                     border: OutlineInputBorder(),
                   ),
                   keyboardType: TextInputType.number,
@@ -233,7 +235,6 @@ class SearchAndFilterBar extends StatelessWidget {
                   controller: maxController,
                   decoration: const InputDecoration(
                     labelText: 'Maximum Price',
-                    prefixText: '\$',
                     border: OutlineInputBorder(),
                   ),
                   keyboardType: TextInputType.number,
@@ -277,7 +278,7 @@ class SearchAndFilterBar extends StatelessWidget {
       selected: controller.minRating.value != null,
       onSelected: (_) => _showRatingDialog(context),
       backgroundColor: Colors.white,
-      selectedColor: FilterDialogTheme.selectedColor.withOpacity(0.2),
+      selectedColor: FilterDialogTheme.selectedColor.withValues(alpha: 0.2),
       checkmarkColor: FilterDialogTheme.selectedColor,
       labelStyle: TextStyle(
         color:

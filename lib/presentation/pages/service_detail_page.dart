@@ -135,7 +135,7 @@ class _ServiceDetailPageState extends State<ServiceDetailPage> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            color: Theme.of(context).primaryColor.withOpacity(0.1),
+            color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(
@@ -169,9 +169,8 @@ class _ServiceDetailPageState extends State<ServiceDetailPage> {
           ],
         ),
         const Spacer(),
-        // Price
         Text(
-          '\$${service.price.toStringAsFixed(2)}',
+          '${service.price.toStringAsFixed(2)} ETB',
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
             fontWeight: FontWeight.w800,
             color: Theme.of(context).primaryColor,

@@ -1,7 +1,5 @@
 import 'dart:convert';
-
 import 'package:http/http.dart' as http;
-import 'package:service_booking/core/utils/logger.dart';
 import 'package:service_booking/data/models/service_model.dart';
 
 class RemoteDataSource {
@@ -17,17 +15,17 @@ class RemoteDataSource {
       final List<dynamic> jsonList = json.decode(response.body);
       return jsonList.map((json) => ServiceModel.fromJson(json)).toList();
     } else {
-      throw Exception('Failed to load services');
+      throw Exception('Failed to load services: ${response.statusCode}');
     }
   }
 
   Future<ServiceModel> getService(String id) async {
     final response = await client.get(Uri.parse('$baseUrl/products/$id'));
-    logger(json.decode(response.body));
+
     if (response.statusCode == 200) {
       return ServiceModel.fromJson(json.decode(response.body));
     } else {
-      throw Exception('Failed to load service');
+      throw Exception('Failed to load service: ${response.statusCode}');
     }
   }
 
@@ -37,31 +35,29 @@ class RemoteDataSource {
       body: json.encode(service.toJson()),
       headers: {'Content-Type': 'application/json'},
     );
+
     if (response.statusCode != 201) {
-      throw Exception('Failed to create service');
+      throw Exception('Failed to create service: ${response.statusCode}');
     }
   }
 
   Future<void> updateService(String id, ServiceModel service) async {
-    logger("in here updating...");
-    logger(id);
     final response = await client.put(
       Uri.parse('$baseUrl/products/$id'),
       body: json.encode(service.toJson()),
       headers: {'Content-Type': 'application/json'},
     );
 
-    logger(response.body);
-
     if (response.statusCode != 200) {
-      throw Exception('Failed to update service');
+      throw Exception('Failed to update service: ${response.statusCode}');
     }
   }
 
   Future<void> deleteService(String id) async {
     final response = await client.delete(Uri.parse('$baseUrl/products/$id'));
+
     if (response.statusCode != 200) {
-      throw Exception('Failed to delete service');
+      throw Exception('Failed to delete service: ${response.statusCode}');
     }
   }
 }

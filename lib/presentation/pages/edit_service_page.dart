@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:service_booking/core/utils/logger.dart';
 import 'package:service_booking/core/utils/validators.dart';
 import 'package:service_booking/domain/entities/service_entity.dart';
 import 'package:service_booking/presentation/controllers/service_controller.dart';
@@ -43,7 +42,6 @@ class _EditServicePageState extends State<EditServicePage> {
 
   @override
   void dispose() {
-    // Clear the image if it wasn't saved
     if (controller.imageFile.value?.path != originalService?.imageUrl) {
       controller.imageFile.value = null;
     }
@@ -63,12 +61,10 @@ class _EditServicePageState extends State<EditServicePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Header with title
                 const SizedBox(height: 40),
                 _buildHeader(context),
                 const SizedBox(height: 20),
 
-                // Full-width image upload
                 _buildImageUploadSection(context),
                 Obx(
                   () =>
@@ -78,7 +74,6 @@ class _EditServicePageState extends State<EditServicePage> {
                           : const SizedBox.shrink(),
                 ),
 
-                // Animated form fields
                 _buildAnimatedFormFields(context),
 
                 // Submit button with animation
@@ -139,7 +134,7 @@ class _EditServicePageState extends State<EditServicePage> {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
+                      color: Colors.black.withValues(alpha: 0.05),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -188,7 +183,7 @@ class _EditServicePageState extends State<EditServicePage> {
           bottom: 10,
           right: 10,
           child: FloatingActionButton.small(
-            backgroundColor: Colors.white.withOpacity(0.9),
+            backgroundColor: Colors.white.withValues(alpha: 0.9),
             onPressed: () => _showImageSourceDialog(Get.context!),
             child: const Icon(Icons.edit, color: Colors.black87),
           ),
@@ -245,7 +240,6 @@ class _EditServicePageState extends State<EditServicePage> {
             ),
             onPressed: () {
               controller.imageFile.value = null;
-              // Also clear the original image URL reference
               if (originalService != null) {
                 originalService!.imageUrl = null;
               }
@@ -279,7 +273,7 @@ class _EditServicePageState extends State<EditServicePage> {
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withValues(alpha: 0.1),
                   blurRadius: 20,
                   spreadRadius: 5,
                 ),
@@ -447,7 +441,7 @@ class _EditServicePageState extends State<EditServicePage> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -505,7 +499,9 @@ class _EditServicePageState extends State<EditServicePage> {
             boxShadow: [
               if (!controller.isUpdating.value)
                 BoxShadow(
-                  color: Theme.of(Get.context!).primaryColor.withOpacity(0.2),
+                  color: Theme.of(
+                    Get.context!,
+                  ).primaryColor.withValues(alpha: 0.2),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),

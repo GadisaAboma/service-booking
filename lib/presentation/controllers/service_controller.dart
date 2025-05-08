@@ -136,15 +136,6 @@ class ServiceController extends GetxController {
       filteredServices.assignAll(result);
     } catch (e) {
       errorMessage.value = 'Failed to fetch services: ${e.toString()}';
-      // Show a snackbar indicating we're showing cached data
-      if (services.isEmpty) {
-        Get.snackbar(
-          'Offline Mode',
-          'Showing cached services. Connect to the internet for the latest data.',
-          snackPosition: SnackPosition.BOTTOM,
-          duration: const Duration(seconds: 3),
-        );
-      }
     } finally {
       isLoading.value = false;
     }

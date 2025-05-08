@@ -1,21 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hive_flutter/adapters.dart';
 import 'package:service_booking/core/routes/app_pages.dart';
 import 'package:service_booking/core/routes/app_routes.dart';
 import 'package:service_booking/core/theme/app_theme.dart';
-import 'package:service_booking/data/models/hive_service_model.dart';
+
 import 'package:service_booking/presentation/bindings/service_binding.dart';
-import 'package:service_booking/presentation/services/hive_service.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Get.putAsync(() => SharedPreferences.getInstance());
-  // await Hive.initFlutter();
-  // Hive.registerAdapter(HiveServiceModelAdapter());
-
-  // await HiveService.init();
+ 
   final sharedPreferences = await SharedPreferences.getInstance();
   runApp(MyApp(sharedPreferences: sharedPreferences));
 }
@@ -35,6 +31,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       initialRoute: AppRoutes.home,
       getPages: AppPages.pages,
+      
     );
   }
 }

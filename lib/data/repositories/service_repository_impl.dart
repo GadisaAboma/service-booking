@@ -1,4 +1,5 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:service_booking/core/utils/logger.dart';
 import 'package:service_booking/data/datasources/remote_data_source.dart';
 import 'package:service_booking/data/models/service_model.dart';
 import 'package:service_booking/domain/entities/service_entity.dart';
@@ -19,19 +20,23 @@ class ServiceRepositoryImpl implements ServiceRepository {
   @override
   Future<List<ServiceEntity>> getServices() async {
     final connectivityResult = await connectivity.checkConnectivity();
-    final isConnected = connectivityResult != ConnectivityResult.none;
+    logger("fetching services");
+    logger(connectivityResult.contains(ConnectivityResult.none));
+    final isConnected = connectivityResult.contains(ConnectivityResult.none);
 
-    if (isConnected) {
+    if (!isConnected) {
       try {
         final models = await remoteDataSource.getServices();
-        await localDataSource.cacheServices(models);
+        await localDataSource.cacheServices(models); // Cache only on success
         return models.map((model) => _toEntity(model)).toList();
       } catch (e) {
-        final cachedModels = await localDataSource.getCachedServices();
-        return cachedModels.map((model) => _toEntity(model)).toList();
+        throw Exception('Failed to fetch services: ${e.toString()}');
       }
     } else {
       final cachedModels = await localDataSource.getCachedServices();
+      if (cachedModels.isEmpty) {
+        throw Exception('No internet connection and no cached data available');
+      }
       return cachedModels.map((model) => _toEntity(model)).toList();
     }
   }
@@ -40,27 +45,23 @@ class ServiceRepositoryImpl implements ServiceRepository {
   Future<ServiceEntity> getService(String id) async {
     final connectivityResult = await connectivity.checkConnectivity();
 
-    if (connectivityResult != ConnectivityResult.none) {
+    if (!connectivityResult.contains(ConnectivityResult.none)) {
       try {
         final model = await remoteDataSource.getService(id);
         return _toEntity(model);
       } catch (e) {
-        // If online fetch fails, try to find in cache
-        final cachedModels = await localDataSource.getCachedServices();
-        final cachedModel = cachedModels.firstWhere(
-          (model) => model.id == id,
-          orElse: () => throw Exception('Service not found in cache'),
-        );
-        return _toEntity(cachedModel);
+        throw Exception('Failed to fetch service: ${e.toString()}');
       }
     } else {
-      // Offline - find in cache
       final cachedModels = await localDataSource.getCachedServices();
-      final cachedModel = cachedModels.firstWhere(
-        (model) => model.id == id,
-        orElse: () => throw Exception('Service not found in cache'),
-      );
-      return _toEntity(cachedModel);
+      try {
+        final cachedModel = cachedModels.firstWhere((model) => model.id == id);
+        return _toEntity(cachedModel);
+      } catch (_) {
+        throw Exception(
+          'No internet connection and service not found in cache',
+        );
+      }
     }
   }
 
@@ -69,12 +70,16 @@ class ServiceRepositoryImpl implements ServiceRepository {
     final model = _toModel(service);
     final connectivityResult = await connectivity.checkConnectivity();
 
-    if (connectivityResult != ConnectivityResult.none) {
-      await remoteDataSource.createService(model);
-      // Update cache after successful creation
-      final currentServices = await localDataSource.getCachedServices();
-      currentServices.add(model);
-      await localDataSource.cacheServices(currentServices);
+    if (!connectivityResult.contains(ConnectivityResult.none)) {
+      try {
+        await remoteDataSource.createService(model);
+        // Update cache only after successful creation
+        final currentServices = await localDataSource.getCachedServices();
+        currentServices.add(model);
+        await localDataSource.cacheServices(currentServices);
+      } catch (e) {
+        throw Exception('Failed to create service: ${e.toString()}');
+      }
     } else {
       throw Exception('No internet connection. Service not created.');
     }
@@ -85,14 +90,18 @@ class ServiceRepositoryImpl implements ServiceRepository {
     final model = _toModel(service);
     final connectivityResult = await connectivity.checkConnectivity();
 
-    if (connectivityResult != ConnectivityResult.none) {
-      await remoteDataSource.updateService(id, model);
-      // Update cache after successful update
-      final currentServices = await localDataSource.getCachedServices();
-      final index = currentServices.indexWhere((s) => s.id == id);
-      if (index != -1) {
-        currentServices[index] = model;
-        await localDataSource.cacheServices(currentServices);
+    if (!connectivityResult.contains(ConnectivityResult.none)) {
+      try {
+        await remoteDataSource.updateService(id, model);
+        // Update cache only after successful update
+        final currentServices = await localDataSource.getCachedServices();
+        final index = currentServices.indexWhere((s) => s.id == id);
+        if (index != -1) {
+          currentServices[index] = model;
+          await localDataSource.cacheServices(currentServices);
+        }
+      } catch (e) {
+        throw Exception('Failed to update service: ${e.toString()}');
       }
     } else {
       throw Exception('No internet connection. Service not updated.');
@@ -103,18 +112,20 @@ class ServiceRepositoryImpl implements ServiceRepository {
   Future<void> deleteService(String id) async {
     final connectivityResult = await connectivity.checkConnectivity();
 
-    if (connectivityResult != ConnectivityResult.none) {
-      await remoteDataSource.deleteService(id);
-      // Update cache after successful deletion
-      final currentServices = await localDataSource.getCachedServices();
-      currentServices.removeWhere((s) => s.id == id);
-      await localDataSource.cacheServices(currentServices);
+    if (!connectivityResult.contains(ConnectivityResult.none)) {
+      try {
+        await remoteDataSource.deleteService(id);
+        final currentServices = await localDataSource.getCachedServices();
+        currentServices.removeWhere((s) => s.id == id);
+        await localDataSource.cacheServices(currentServices);
+      } catch (e) {
+        throw Exception('Failed to delete service: ${e.toString()}');
+      }
     } else {
       throw Exception('No internet connection. Service not deleted.');
     }
   }
 
-  // Helper methods remain the same...
   ServiceEntity _toEntity(ServiceModel model) {
     return ServiceEntity(
       id: model.id,

@@ -5,14 +5,12 @@ import 'package:service_booking/domain/entities/service_entity.dart';
 class ServiceContainer extends StatelessWidget {
   final ServiceEntity service;
   final VoidCallback onTap;
-  final VoidCallback? onBookPressed;
   final VoidCallback? onDelete;
 
   const ServiceContainer({
     super.key,
     required this.service,
     required this.onTap,
-    this.onBookPressed,
     this.onDelete,
   });
 
@@ -29,7 +27,7 @@ class ServiceContainer extends StatelessWidget {
             borderRadius: BorderRadius.circular(10),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.04),
+                color: Colors.black.withValues(alpha: 0.04),
                 blurRadius: 8,
                 offset: const Offset(0, 5),
               ),
@@ -111,7 +109,7 @@ class ServiceContainer extends StatelessWidget {
             // Unavailable Overlay
             if (!service.availability)
               Container(
-                color: Colors.black.withOpacity(0.3),
+                color: Colors.black.withValues(alpha: 0.3),
                 child: Center(
                   child: Container(
                     padding: const EdgeInsets.symmetric(
@@ -158,7 +156,7 @@ class ServiceContainer extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
-            color: Theme.of(context).primaryColor.withOpacity(0.08),
+            color: Theme.of(context).primaryColor.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Text(
@@ -179,7 +177,7 @@ class ServiceContainer extends StatelessWidget {
       children: [
         // Price
         Text(
-          '\$${service.price.toStringAsFixed(2)}',
+          '${service.price.toStringAsFixed(2)} ETB',
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w700,
@@ -255,11 +253,11 @@ class ServiceContainer extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(4),
           decoration: BoxDecoration(
-            color: Colors.red.withOpacity(0.9),
+            color: Colors.red.withValues(alpha: 0.9),
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.black.withValues(alpha: 0.1),
                 blurRadius: 4,
                 offset: const Offset(0, 2),
               ),
