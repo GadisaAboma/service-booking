@@ -11,9 +11,7 @@ void main() async {
   runApp(const MyApp());
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
-  Hive.registerAdapter(
-    HiveServiceModelAdapter(),
-  ); // Register the Hive model adapter
+  Hive.registerAdapter(HiveServiceModelAdapter());
 
   await HiveService.init();
 }
@@ -29,7 +27,7 @@ class MyApp extends StatelessWidget {
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.light,
       debugShowCheckedModeBanner: false,
-      initialRoute: AppRoutes.home, // You'll need to define this
+      initialRoute: AppRoutes.home,
       getPages: AppPages.pages,
     );
   }

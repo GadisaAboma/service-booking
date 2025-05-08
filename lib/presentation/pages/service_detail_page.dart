@@ -25,52 +25,86 @@ class _ServiceDetailPageState extends State<ServiceDetailPage> {
     });
 
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 350,
-            flexibleSpace: FlexibleSpaceBar(
-              background: Obx(() {
-                final service = controller.selectedService.value;
-                if (service == null) return _buildShimmerLoading();
-                return Hero(
-                  tag: 'service-image-${service.id}',
-                  child: AnimatedSwitcher(
-                    duration: 500.ms,
-                    child:
-                        service.imageUrl != null
-                            ? Image.file(
-                              File(service.imageUrl!),
-                              fit: BoxFit.cover,
-                              // loadingBuilder: (context, child, progress) {
-                              //   return progress == null
-                              //       ? child
-                              //       : _buildShimmerLoading();
-                              // },
-                            )
-                            : _buildImagePlaceholder(),
-                  ),
-                );
-              }),
+      extendBodyBehindAppBar: true,
+      body: Obx(() {
+        final service = controller.selectedService.value;
+        final isLoading = controller.isLoading.value;
+
+        return CustomScrollView(
+          slivers: [
+            // Hero Image Section
+            SliverAppBar(
+              expandedHeight: MediaQuery.of(context).size.height * 0.5,
+              stretch: true,
+              flexibleSpace: FlexibleSpaceBar(
+                stretchModes: const [StretchMode.zoomBackground],
+                background:
+                    isLoading
+                        ? _buildShimmerLoading()
+                        : Hero(
+                          tag: 'service-image-${service?.id}',
+                          child:
+                              service?.imageUrl != null
+                                  ? Image.file(
+                                    File(service!.imageUrl!),
+                                    fit: BoxFit.cover,
+                                    errorBuilder:
+                                        (context, error, stackTrace) =>
+                                            _buildImagePlaceholder(),
+                                  )
+                                  : _buildImagePlaceholder(),
+                        ),
+              ),
+              pinned: true,
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              actions: [
+                if (service != null) _buildEditButton(context, serviceId),
+              ],
             ),
-            pinned: true,
-            actions: [_buildEditButton(context, serviceId)],
-          ),
-          SliverToBoxAdapter(
-            child:
-                Obx(() {
-                  if (controller.isLoading.value) {
-                    return _buildLoadingContent();
-                  }
-                  final service = controller.selectedService.value;
-                  if (service == null) {
-                    return _buildErrorState(controller, serviceId);
-                  }
-                  return _buildServiceContent(context, service);
-                }).animate(delay: 200.ms).fadeIn(),
-          ),
-        ],
-      ),
+
+            // Content Section
+            SliverToBoxAdapter(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).scaffoldBackgroundColor,
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(32),
+                  ),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 32,
+                ),
+                child:
+                    isLoading
+                        ? _buildLoadingContent()
+                        : service == null
+                        ? _buildErrorState(controller, serviceId)
+                        : Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Header with title and category
+                            _buildHeaderSection(context, service),
+                            const SizedBox(height: 24),
+
+                            // Rating and Price Row
+                            _buildRatingPriceRow(service),
+                            const SizedBox(height: 24),
+
+                            // Divider
+                            const Divider(height: 1),
+                            const SizedBox(height: 24),
+
+                            // Service details
+                            _buildServiceDetails(service),
+                          ],
+                        ).animate().slideY(begin: 0.2, end: 0),
+              ),
+            ),
+          ],
+        );
+      }),
     );
   }
 
@@ -79,36 +113,11 @@ class _ServiceDetailPageState extends State<ServiceDetailPage> {
       padding: const EdgeInsets.only(right: 16),
       child: FloatingActionButton.small(
         heroTag: 'edit-$serviceId',
-        backgroundColor: Theme.of(context).primaryColor.withOpacity(0.9),
+        backgroundColor: Theme.of(context).primaryColor.withValues(alpha: 0.9),
         child: const Icon(Icons.edit, color: Colors.white),
         onPressed: () => _navigateToEdit(context, serviceId),
       ),
     ).animate().scale(delay: 300.ms);
-  }
-
-  void _navigateToEdit(BuildContext context, String serviceId) {
-    Get.toNamed(AppRoutes.editService, arguments: serviceId)?.then((_) {
-      // Refresh the service details after returning from edit
-      Get.find<ServiceController>().fetchService(serviceId);
-    });
-  }
-
-  Widget _buildServiceContent(BuildContext context, ServiceEntity service) {
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildHeaderSection(context, service),
-          const SizedBox(height: 24),
-          _buildDetailsSection(service),
-          const SizedBox(height: 32),
-          _buildDescriptionSection(service),
-          const SizedBox(height: 40),
-          _buildBookButton(context, service),
-        ],
-      ).animate().slideY(begin: 0.2, end: 0, curve: Curves.easeOut),
-    );
   }
 
   Widget _buildHeaderSection(BuildContext context, ServiceEntity service) {
@@ -117,102 +126,121 @@ class _ServiceDetailPageState extends State<ServiceDetailPage> {
       children: [
         Text(
           service.name,
-          style: Theme.of(
-            context,
-          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
-        ).animate().fadeIn(delay: 100.ms),
-        const SizedBox(height: 8),
-        Chip(
-          label: Text(service.category),
-          backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
-          labelStyle: TextStyle(
-            color: Theme.of(context).primaryColor,
-            fontWeight: FontWeight.w600,
+          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+            fontWeight: FontWeight.w800,
+            color: Colors.black87,
           ),
-        ).animate().fadeIn(delay: 200.ms),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: Theme.of(context).primaryColor.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            service.category,
+            style: TextStyle(
+              color: Theme.of(context).primaryColor,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
       ],
     );
   }
 
-  Widget _buildDetailsSection(ServiceEntity service) {
-    return Wrap(
-      spacing: 12,
-      runSpacing: 12,
+  Widget _buildRatingPriceRow(ServiceEntity service) {
+    return Row(
       children: [
-        _buildDetailChip(
-          icon: Icons.star,
-          color: Colors.amber,
-          label: service.rating.toStringAsFixed(1),
-        ),
-        _buildDetailChip(
-          icon: Icons.schedule,
-          color: Colors.blue,
-          label: '${service.duration} mins',
-        ),
-        _buildDetailChip(
-          icon: Icons.calendar_today,
-          color: service.availability ? Colors.green : Colors.red,
-          label: service.availability ? 'Available' : 'Unavailable',
-        ),
-        _buildDetailChip(
-          icon: Icons.attach_money_outlined,
-          color: Colors.purple,
-          label: service.price.toString(),
-        ),
-      ],
-    ).animate().fadeIn(delay: 300.ms);
-  }
-
-  Widget _buildDescriptionSection(ServiceEntity service) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'About this service',
-          style: Theme.of(
-            context,
-          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
-        ),
-        const SizedBox(height: 12),
-        Text(
-          'No description provided',
-          style: Theme.of(
-            context,
-          ).textTheme.bodyLarge?.copyWith(height: 1.6, color: Colors.grey[800]),
-        ),
-      ],
-    ).animate().fadeIn(delay: 400.ms);
-  }
-
-  Widget _buildBookButton(BuildContext context, ServiceEntity service) {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Theme.of(context).primaryColor,
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-        onPressed: service.availability ? () {} : null,
-        child: const Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+        // Rating
+        Row(
           children: [
-            Icon(Icons.book_online),
-            SizedBox(width: 12),
+            Icon(Icons.star, color: Colors.amber, size: 24),
+            const SizedBox(width: 4),
             Text(
-              'Book Now',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              service.rating.toStringAsFixed(1),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey[800],
+              ),
             ),
           ],
         ),
-      ),
-    ).animate().fadeIn(delay: 500.ms);
+        const Spacer(),
+        // Price
+        Text(
+          '\$${service.price.toStringAsFixed(2)}',
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.w800,
+            color: Theme.of(context).primaryColor,
+          ),
+        ),
+      ],
+    );
   }
 
-  // Helper widgets (keep from previous implementation)
+  Widget _buildServiceDetails(ServiceEntity service) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Duration
+        _buildDetailItem(
+          icon: Icons.schedule,
+          title: 'Duration',
+          value: '${service.duration} minutes',
+        ),
+        const SizedBox(height: 16),
+
+        // Availability
+        _buildDetailItem(
+          icon: service.availability ? Icons.check_circle : Icons.cancel,
+          title: 'Availability',
+          value: service.availability ? 'Available' : 'Unavailable',
+          iconColor: service.availability ? Colors.green : Colors.red,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDetailItem({
+    required IconData icon,
+    required String title,
+    required String value,
+    Color? iconColor,
+  }) {
+    return Row(
+      children: [
+        Icon(
+          icon,
+          color: iconColor ?? Theme.of(context).primaryColor,
+          size: 24,
+        ),
+        const SizedBox(width: 12),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  // Helper widgets
   Widget _buildImagePlaceholder() => Container(
     color: Colors.grey[200],
     child: const Center(child: Icon(Icons.photo, size: 100)),
@@ -240,14 +268,9 @@ class _ServiceDetailPageState extends State<ServiceDetailPage> {
         ],
       );
 
-  Widget _buildDetailChip({
-    required IconData icon,
-    required Color color,
-    required String label,
-  }) => Chip(
-    avatar: Icon(icon, size: 18, color: color),
-    label: Text(label),
-    backgroundColor: color.withOpacity(0.1),
-    labelStyle: TextStyle(color: color, fontWeight: FontWeight.w600),
-  );
+  void _navigateToEdit(BuildContext context, String serviceId) {
+    Get.toNamed(AppRoutes.editService, arguments: serviceId)?.then((_) {
+      Get.find<ServiceController>().fetchService(serviceId);
+    });
+  }
 }

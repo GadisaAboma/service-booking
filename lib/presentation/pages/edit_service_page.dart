@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:service_booking/core/utils/logger.dart';
 import 'package:service_booking/core/utils/validators.dart';
 import 'package:service_booking/domain/entities/service_entity.dart';
 import 'package:service_booking/presentation/controllers/service_controller.dart';
@@ -27,7 +28,8 @@ class _EditServicePageState extends State<EditServicePage> {
     serviceId = Get.arguments as String;
     originalService = controller.selectedService.value;
 
-    // Initialize form fields with existing service data
+ 
+
     if (originalService != null) {
       controller.nameController.text = originalService!.name;
       controller.categoryController.text = originalService!.category;
@@ -35,7 +37,6 @@ class _EditServicePageState extends State<EditServicePage> {
       controller.durationController.text = originalService!.duration.toString();
       controller.availability.value = originalService!.availability;
 
-      // Set image if exists
       if (originalService!.imageUrl != null) {
         controller.imageFile.value = File(originalService!.imageUrl!);
       }

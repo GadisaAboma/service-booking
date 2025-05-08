@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:service_booking/core/utils/logger.dart';
 import 'package:service_booking/presentation/controllers/service_controller.dart';
 
 class CategoryDropdown extends StatelessWidget {
@@ -15,10 +16,9 @@ class CategoryDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      // Get current category from the observable
       final currentCategory = controller.selectedCategory;
+      logger(currentCategory);
 
-      // Create unique categories list
       final categories =
           List<String>.from(predefinedCategories)
             ..addIf(

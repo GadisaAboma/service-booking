@@ -240,7 +240,7 @@ class _EmptyStateWidget extends StatelessWidget {
           ElevatedButton.icon(
             icon: Icon(Icons.add, color: Colors.white),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue,
+              backgroundColor: Theme.of(Get.context!).primaryColor,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),

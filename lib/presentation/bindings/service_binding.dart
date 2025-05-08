@@ -16,7 +16,7 @@ class ServiceBinding extends Bindings {
     Get.lazyPut(() => http.Client());
     Get.lazyPut(
       () => RemoteDataSource(
-        baseUrl: 'https://crudcrud.com/api/e36c6c2696b240118bf0c33cb340e7da',
+        baseUrl: 'https://crudcrud.com/api/240aca5f9fe344a3a5cc2d5e87de0e5c',
         client: Get.find(),
       ),
     );

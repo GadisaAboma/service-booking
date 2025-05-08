@@ -5,7 +5,7 @@ class AppTheme {
   static final lightTheme = ThemeData(
     useMaterial3: true,
     textTheme: GoogleFonts.poppinsTextTheme(),
-    primarySwatch: Colors.blue,
+    // primarySwatch: Colors.blue,
     scaffoldBackgroundColor: Colors.white,
     visualDensity: VisualDensity.adaptivePlatformDensity,
     inputDecorationTheme: const InputDecorationTheme(

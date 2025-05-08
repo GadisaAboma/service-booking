@@ -22,12 +22,10 @@ class ServiceForm extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Header with title
               const SizedBox(height: 20),
               _buildHeader(context),
               const SizedBox(height: 20),
 
-              // Full-width image upload
               _buildImageUploadSection(context),
               Obx(
                 () =>
@@ -36,10 +34,8 @@ class ServiceForm extends StatelessWidget {
                         : const SizedBox.shrink(),
               ),
 
-              // Animated form fields
               _buildAnimatedFormFields(context),
 
-              // Submit button with animation
               _buildSubmitButton(),
             ],
           ),

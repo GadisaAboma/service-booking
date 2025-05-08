@@ -79,6 +79,16 @@ class ServiceController extends GetxController {
         minRating.value != null;
   }
 
+  void _clearForm() {
+    nameController.clear();
+    categoryController.clear();
+    priceController.clear();
+    durationController.clear();
+    availability.value = true;
+    imageFile.value = null;
+    formKey.currentState?.reset();
+  }
+
   void clearAllFilters() {
     searchController.clear();
     selectedCategories.clear();
@@ -186,6 +196,8 @@ class ServiceController extends GetxController {
     try {
       await updateServiceUseCase(service.id!, service);
       await fetchServices();
+      _clearForm();
+
       Get.back();
       Get.snackbar('Success', 'Service updated successfully');
     } catch (e) {
@@ -211,6 +223,7 @@ class ServiceController extends GetxController {
 
       await createServiceUseCase(service);
       await fetchServices();
+      _clearForm();
       Get.back();
       Get.snackbar('Success', 'Service created successfully');
     } catch (e) {
