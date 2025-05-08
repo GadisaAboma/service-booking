@@ -24,7 +24,6 @@ class ServiceModel {
       return ServiceModel();
     }
 
-    // Helper function to safely parse different types
     T? safeParse<T>(dynamic value, T? Function(dynamic) parser) {
       try {
         return value != null ? parser(value) : null;
@@ -34,7 +33,7 @@ class ServiceModel {
     }
 
     return ServiceModel(
-      id: safeParse(json['_id'], (v) => v.toString()),
+      id: safeParse(json['id'], (v) => v.toString()),
       name: safeParse(json['name'], (v) => v.toString()),
       category: safeParse(json['category'], (v) => v.toString()),
       price: safeParse(
@@ -81,11 +80,10 @@ class ServiceModel {
     };
   }
 
-  // Helper methods for default values
   String get nameOrDefault => name ?? 'Unnamed Service';
   String get categoryOrDefault => category ?? 'Uncategorized';
-  double get priceOrDefault => price ?? 0.0;
+  double get priceOrDefault => price ?? 10.0;
   bool get availabilityOrDefault => availability ?? false;
-  int get durationOrDefault => duration ?? 0;
-  double get ratingOrDefault => rating ?? 0.0;
+  int get durationOrDefault => duration ?? 10;
+  double get ratingOrDefault => rating ?? 5.0;
 }

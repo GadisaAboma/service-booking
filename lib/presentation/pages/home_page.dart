@@ -24,10 +24,20 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<ServiceController>();
+    final scrollController = ScrollController();
 
+    // Initialize scroll listener for pagination
+    scrollController.addListener(() {
+      if (scrollController.position.pixels ==
+          scrollController.position.maxScrollExtent) {
+        controller.loadMoreServices();
+      }
+    });
+
+    // Handle connectivity changes
     Connectivity().onConnectivityChanged.listen((result) {
       if (!result.contains(ConnectivityResult.none)) {
-        if (controller.services.isNotEmpty) {
+        if (controller.services.isEmpty) {
           controller.fetchServices();
         }
       }
@@ -48,7 +58,7 @@ class HomePage extends StatelessWidget {
         actions: [
           StreamBuilder<List<ConnectivityResult>>(
             stream: Connectivity().onConnectivityChanged,
-            initialData: [ConnectivityResult.none],
+            initialData: const [ConnectivityResult.none],
             builder: (context, snapshot) {
               final isOffline =
                   snapshot.data?.contains(ConnectivityResult.none) ?? true;
@@ -79,7 +89,8 @@ class HomePage extends StatelessWidget {
           SearchAndFilterBar(controller: controller, categories: categories),
           Expanded(
             child: Obx(() {
-              if (controller.isLoading.value) {
+              if (controller.isLoading.value &&
+                  controller.currentPage.value == 1) {
                 return const Center(
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
@@ -111,12 +122,30 @@ class HomePage extends StatelessWidget {
                 color: Colors.blue,
                 onRefresh: () => controller.fetchServices(),
                 child: ListView.builder(
+                  controller: scrollController,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,
                     vertical: 8,
                   ),
-                  itemCount: controller.filteredServices.length,
+                  itemCount:
+                      controller.filteredServices.length +
+                      (controller.hasMore.value ? 1 : 0),
                   itemBuilder: (context, index) {
+                    // Show loading indicator at the end if there's more to load
+                    if (index >= controller.filteredServices.length) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        child: Center(
+                          child: Obx(
+                            () =>
+                                controller.isLoading.value
+                                    ? const CircularProgressIndicator()
+                                    : const SizedBox(),
+                          ),
+                        ),
+                      );
+                    }
+
                     final service = controller.filteredServices[index];
                     return FadeInAnimation(
                       delay: Duration(milliseconds: 100 * index),

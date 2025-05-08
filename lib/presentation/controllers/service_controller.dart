@@ -61,6 +61,10 @@ class ServiceController extends GetxController {
   final maxPrice = Rx<double?>(null);
   final minRating = Rx<double?>(null);
 
+  final currentPage = 1.obs;
+  final itemsPerPage = 10.obs;
+  final hasMore = true.obs;
+
   @override
   void onInit() {
     fetchServices();
@@ -127,17 +131,44 @@ class ServiceController extends GetxController {
     );
   }
 
-  Future<void> fetchServices() async {
-    isLoading.value = true;
+  Future<void> fetchServices({bool loadMore = false}) async {
+    if (loadMore) {
+      currentPage.value++;
+    } else {
+      currentPage.value = 1;
+      isLoading.value = true;
+      services.clear();
+      filteredServices.clear();
+    }
+
     errorMessage.value = '';
     try {
-      final result = await getServicesUseCase();
-      services.assignAll(result);
-      filteredServices.assignAll(result);
+      final result = await getServicesUseCase(
+        page: currentPage.value,
+        limit: itemsPerPage.value,
+      );
+
+      services.addAll(result);
+      filteredServices.addAll(result);
+
+      hasMore.value = result.length >= itemsPerPage.value;
+
+      if (loadMore) {
+        applyFilters();
+      }
     } catch (e) {
       errorMessage.value = 'Failed to fetch services: ${e.toString()}';
+      if (loadMore) {
+        currentPage.value--;
+      }
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  Future<void> loadMoreServices() async {
+    if (!isLoading.value && hasMore.value) {
+      await fetchServices(loadMore: true);
     }
   }
 

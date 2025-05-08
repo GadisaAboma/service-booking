@@ -18,26 +18,38 @@ class ServiceRepositoryImpl implements ServiceRepository {
   });
 
   @override
-  Future<List<ServiceEntity>> getServices() async {
+  Future<List<ServiceEntity>> getServices({
+    int page = 1,
+    int limit = 10,
+  }) async {
     final connectivityResult = await connectivity.checkConnectivity();
-    logger("fetching services");
-    logger(connectivityResult.contains(ConnectivityResult.none));
-    final isConnected = connectivityResult.contains(ConnectivityResult.none);
+    final isConnected = !connectivityResult.contains(ConnectivityResult.none);
 
-    if (!isConnected) {
+    if (isConnected) {
       try {
-        final models = await remoteDataSource.getServices();
-        await localDataSource.cacheServices(models); // Cache only on success
+        final models = await remoteDataSource.getServices(
+          page: page,
+          limit: limit,
+        );
+
+        if (page == 1) {
+          await localDataSource.cacheServices(models);
+        }
         return models.map((model) => _toEntity(model)).toList();
       } catch (e) {
         throw Exception('Failed to fetch services: ${e.toString()}');
       }
     } else {
-      final cachedModels = await localDataSource.getCachedServices();
-      if (cachedModels.isEmpty) {
-        throw Exception('No internet connection and no cached data available');
+      if (page == 1) {
+        final cachedModels = await localDataSource.getCachedServices();
+        if (cachedModels.isEmpty) {
+          throw Exception(
+            'No internet connection and no cached data available',
+          );
+        }
+        return cachedModels.map((model) => _toEntity(model)).toList();
       }
-      return cachedModels.map((model) => _toEntity(model)).toList();
+      throw Exception('Pagination not supported offline');
     }
   }
 

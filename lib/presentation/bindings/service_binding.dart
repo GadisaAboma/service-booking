@@ -25,7 +25,7 @@ class ServiceBinding extends Bindings {
     Get.put<SharedPreferences>(sharedPreferences, permanent: true);
     Get.lazyPut(
       () => RemoteDataSource(
-        baseUrl: 'https://crudcrud.com/api/167f88ee3f394025bf732d2f0a9e671f',
+        baseUrl: 'https://681ce20af74de1d219ae1cc2.mockapi.io/api',
         client: Get.find(),
       ),
       fenix: true,
