@@ -1,5 +1,4 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:service_booking/core/utils/logger.dart';
 import 'package:service_booking/data/datasources/remote_data_source.dart';
 import 'package:service_booking/data/models/service_model.dart';
 import 'package:service_booking/domain/entities/service_entity.dart';

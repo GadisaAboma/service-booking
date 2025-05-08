@@ -90,7 +90,7 @@ class ServiceController extends GetxController {
   }
 
   // Form methods
-  void set selectedCategory(String value) {
+  set selectedCategory(String value) {
     _selectedCategory.value = value;
     categoryController.text = value;
   }

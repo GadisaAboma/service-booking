@@ -178,7 +178,7 @@ class SearchAndFilterBar extends StatelessWidget {
           controller.maxPrice.value != null,
       onSelected: (_) => _showPriceDialog(context),
       backgroundColor: Colors.white,
-      selectedColor: FilterDialogTheme.selectedColor.withOpacity(0.2),
+      selectedColor: FilterDialogTheme.selectedColor.withValues(alpha: 0.2),
       checkmarkColor: FilterDialogTheme.selectedColor,
       labelStyle: TextStyle(
         color:
