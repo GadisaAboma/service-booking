@@ -64,7 +64,6 @@ class ServiceController extends GetxController {
   @override
   void onInit() {
     fetchServices();
-    // Setup debouncer listener
     searchDebouncer.values.listen((searchTerm) {
       applyFilters();
     });
@@ -87,6 +86,7 @@ class ServiceController extends GetxController {
     availability.value = true;
     imageFile.value = null;
     formKey.currentState?.reset();
+    update();
   }
 
   void clearAllFilters() {
@@ -133,11 +133,18 @@ class ServiceController extends GetxController {
     try {
       final result = await getServicesUseCase();
       services.assignAll(result);
-      filteredServices.assignAll(
-        result,
-      ); // Initialize filtered list with all services
+      filteredServices.assignAll(result);
     } catch (e) {
       errorMessage.value = 'Failed to fetch services: ${e.toString()}';
+      // Show a snackbar indicating we're showing cached data
+      if (services.isEmpty) {
+        Get.snackbar(
+          'Offline Mode',
+          'Showing cached services. Connect to the internet for the latest data.',
+          snackPosition: SnackPosition.BOTTOM,
+          duration: const Duration(seconds: 3),
+        );
+      }
     } finally {
       isLoading.value = false;
     }

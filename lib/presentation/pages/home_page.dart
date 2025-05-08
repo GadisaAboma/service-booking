@@ -1,6 +1,8 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:service_booking/core/routes/app_routes.dart';
+import 'package:service_booking/core/utils/logger.dart';
 import 'package:service_booking/presentation/controllers/service_controller.dart';
 import 'package:service_booking/presentation/pages/widgets/fade_animation.dart';
 import 'package:service_booking/presentation/pages/widgets/search_and_filter_widget.dart';
@@ -36,18 +38,34 @@ class HomePage extends StatelessWidget {
           ),
         ),
         actions: [
+          StreamBuilder<List<ConnectivityResult>>(
+            stream: Connectivity().onConnectivityChanged,
+            builder: (context, snapshot) {
+              final isOffline =
+                  snapshot.data?.contains(ConnectivityResult.none) ?? false;
+              if (isOffline) {
+                return Container(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: const Center(child: Icon(Icons.wifi_off)),
+                );
+              } else {
+                controller.fetchServices();
+              }
+
+              return const SizedBox();
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.add, color: Colors.black),
             onPressed: () => Get.toNamed(AppRoutes.addService),
           ),
         ],
       ),
+
       body: Column(
         children: [
-          // Search and Filter Bar
           SearchAndFilterBar(controller: controller, categories: categories),
 
-          // Services List
           Expanded(
             child: Obx(() {
               if (controller.isLoading.value) {
@@ -96,11 +114,26 @@ class HomePage extends StatelessWidget {
                         child: ServiceContainer(
                           service: service,
                           onDelete: () => controller.deleteService(service.id!),
-                          onTap:
-                              () => Get.toNamed(
-                                AppRoutes.serviceDetail,
-                                arguments: service.id,
-                              ),
+                          onTap: () async {
+                            var connectivityResult =
+                                await Connectivity().checkConnectivity();
+
+                            if (connectivityResult.contains(
+                              ConnectivityResult.none,
+                            )) {
+                              Get.snackbar(
+                                'No Internet Connection',
+                                'Supported only on wifi or data connection',
+                                backgroundColor: Colors.red,
+                                colorText: Colors.white,
+                              );
+                              return;
+                            }
+                            Get.toNamed(
+                              AppRoutes.serviceDetail,
+                              arguments: service.id,
+                            );
+                          },
                           onBookPressed:
                               service.availability
                                   ? () {

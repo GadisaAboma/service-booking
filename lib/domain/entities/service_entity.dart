@@ -1,32 +1,18 @@
-// lib/domain/entities/service_entity.dart
-import 'package:hive/hive.dart';
-
-part 'service_entity.g.dart';
-
-@HiveType(typeId: 0)
 class ServiceEntity {
-  @HiveField(0)
   String? id;
 
-  @HiveField(1)
   String name;
 
-  @HiveField(2)
   String category;
 
-  @HiveField(3)
   double price;
 
-  @HiveField(4)
   String? imageUrl;
 
-  @HiveField(5)
   bool availability;
 
-  @HiveField(6)
   int duration;
 
-  @HiveField(7)
   double rating;
 
   ServiceEntity({

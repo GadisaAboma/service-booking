@@ -1,23 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:service_booking/core/utils/logger.dart';
 import 'package:service_booking/presentation/controllers/service_controller.dart';
 
 class CategoryDropdown extends StatelessWidget {
   final ServiceController controller;
+  final String? selectedCategory;
   final List<String> predefinedCategories;
 
   const CategoryDropdown({
     super.key,
     required this.controller,
     required this.predefinedCategories,
+    this.selectedCategory,
   });
 
   @override
   Widget build(BuildContext context) {
     return Obx(() {
       final currentCategory = controller.selectedCategory;
-      logger(currentCategory);
 
       final categories =
           List<String>.from(predefinedCategories)
@@ -29,7 +29,7 @@ class CategoryDropdown extends StatelessWidget {
             ..sort((a, b) => a.compareTo(b)); // Optional: sort alphabetically
 
       return DropdownButtonFormField<String>(
-        value: currentCategory.isEmpty ? null : currentCategory,
+        value: selectedCategory,
         decoration: InputDecoration(
           labelText: 'Category',
           prefixIcon: const Icon(Icons.category_outlined, color: Colors.grey),

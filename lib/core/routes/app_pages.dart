@@ -11,22 +11,22 @@ abstract class AppPages {
     GetPage(
       name: AppRoutes.home,
       page: () => const HomePage(),
-      binding: ServiceBinding(),
+      // binding: ServiceBinding(),
     ),
     GetPage(
       name: AppRoutes.addService,
       page: () => const AddServicePage(),
-      binding: ServiceBinding(),
+      // binding: ServiceBinding(),
     ),
     GetPage(
       name: AppRoutes.serviceDetail,
       page: () => const ServiceDetailPage(),
-      binding: ServiceBinding(),
+      // binding: ServiceBinding(),
     ),
     GetPage(
       name: AppRoutes.editService,
       page: () => EditServicePage(),
-      binding: ServiceBinding(),
+      // binding: ServiceBinding(),
     ),
   ];
 }

@@ -28,8 +28,6 @@ class _EditServicePageState extends State<EditServicePage> {
     serviceId = Get.arguments as String;
     originalService = controller.selectedService.value;
 
- 
-
     if (originalService != null) {
       controller.nameController.text = originalService!.name;
       controller.categoryController.text = originalService!.category;
@@ -214,10 +212,6 @@ class _EditServicePageState extends State<EditServicePage> {
           style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
         ),
         const SizedBox(height: 4),
-        Text(
-          'Recommended: 1200x1200px',
-          style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
-        ),
       ],
     );
   }
@@ -371,6 +365,7 @@ class _EditServicePageState extends State<EditServicePage> {
           const SizedBox(height: 16),
           _buildAnimatedFormField(
             CategoryDropdown(
+              selectedCategory: originalService?.category,
               controller: controller,
               predefinedCategories: const [
                 'Cleaning',

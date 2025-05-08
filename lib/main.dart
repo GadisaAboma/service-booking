@@ -5,23 +5,29 @@ import 'package:service_booking/core/routes/app_pages.dart';
 import 'package:service_booking/core/routes/app_routes.dart';
 import 'package:service_booking/core/theme/app_theme.dart';
 import 'package:service_booking/data/models/hive_service_model.dart';
+import 'package:service_booking/presentation/bindings/service_binding.dart';
 import 'package:service_booking/presentation/services/hive_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
-  runApp(const MyApp());
   WidgetsFlutterBinding.ensureInitialized();
-  await Hive.initFlutter();
-  Hive.registerAdapter(HiveServiceModelAdapter());
+  await Get.putAsync(() => SharedPreferences.getInstance());
+  // await Hive.initFlutter();
+  // Hive.registerAdapter(HiveServiceModelAdapter());
 
-  await HiveService.init();
+  // await HiveService.init();
+  final sharedPreferences = await SharedPreferences.getInstance();
+  runApp(MyApp(sharedPreferences: sharedPreferences));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final SharedPreferences sharedPreferences;
+  const MyApp({super.key, required this.sharedPreferences});
 
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
+      initialBinding: ServiceBinding(sharedPreferences),
       title: 'Service Booking App',
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
