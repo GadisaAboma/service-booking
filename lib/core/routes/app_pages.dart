@@ -3,6 +3,7 @@ import 'package:service_booking/core/routes/app_routes.dart';
 import 'package:service_booking/presentation/pages/add_service_page.dart';
 import 'package:service_booking/presentation/pages/edit_service_page.dart';
 import 'package:service_booking/presentation/pages/home_page.dart';
+import 'package:service_booking/presentation/pages/login_page.dart';
 import 'package:service_booking/presentation/pages/service_detail_page.dart';
 import 'package:service_booking/presentation/services/page_transition.dart';
 
@@ -11,6 +12,12 @@ abstract class AppPages {
     GetPage(
       name: AppRoutes.home,
       page: () => const HomePage(),
+      transition: Transition.noTransition,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
+    GetPage(
+      name: AppRoutes.login,
+      page: () => const LoginPage(),
       transition: Transition.noTransition,
       transitionDuration: const Duration(milliseconds: 300),
     ),
