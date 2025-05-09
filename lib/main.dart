@@ -5,13 +5,16 @@ import 'package:service_booking/core/routes/app_routes.dart';
 import 'package:service_booking/core/theme/app_theme.dart';
 
 import 'package:service_booking/presentation/bindings/service_binding.dart';
+import 'package:service_booking/presentation/pages/home_page.dart';
+import 'package:service_booking/presentation/pages/login_page.dart';
+import 'package:service_booking/presentation/services/auth_service.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Get.putAsync(() => SharedPreferences.getInstance());
-
+  await Get.putAsync(() => AuthService().init());
   final sharedPreferences = await SharedPreferences.getInstance();
   runApp(MyApp(sharedPreferences: sharedPreferences));
 }
@@ -29,7 +32,12 @@ class MyApp extends StatelessWidget {
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.light,
       debugShowCheckedModeBanner: false,
-      initialRoute: AppRoutes.login,
+      home: Obx(() {
+        final authService = Get.find<AuthService>();
+        return authService.isLoggedIn.value
+            ? const HomePage()
+            : const LoginPage();
+      }),
       getPages: AppPages.pages,
     );
   }

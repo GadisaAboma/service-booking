@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:service_booking/core/routes/app_routes.dart';
+import 'package:service_booking/presentation/services/auth_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -26,6 +27,7 @@ class _LoginPageState extends State<LoginPage> {
       setState(() => _isLoading = true);
       Future.delayed(const Duration(seconds: 1), () {
         setState(() => _isLoading = false);
+        Get.find<AuthService>().login();
         Get.offAllNamed(AppRoutes.home);
       });
     }
