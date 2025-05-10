@@ -64,13 +64,19 @@ lib/
 ## 🛠️ Setup Instructions
 
 1. **Clone the repository**:
+
    ```bash
-   git clone https://github.com/yourusername/service-booking-app.git
+   git clone https://github.com/GadisaAboma/service-booking.git
    cd service-booking-app
+
+    flutter pub get
    ```
-   flutter pub get
 
 flutter run
+
+```
+
+
 
 ## Implemented Features
 
@@ -96,3 +102,4 @@ Pagination implementation
 Hero animations
 
 Authentication simulation
+```
