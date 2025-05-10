@@ -41,29 +41,55 @@ A Flutter application for managing services with full CRUD functionality, built 
   - Hero animations
   - Authentication simulation
 
+## 🎥 App Demo Video
+
+[![Service Booking App Demo](./assets/home_screen.jpg)](./assets/video_guide.mp4)
+
 ## 🏗️ Project Structure (Clean Architecture)
 
-lib/
-├── core/ # Core functionality
-│ ├── constants/ # App constants
-│ ├── utils/ # Utility classes
-│ └── widgets/ # Reusable widgets
-│
-├── data/ # Data layer
-│ ├── datasources/ # API and local data sources
-│ ├── models/ # Data models
-│ └── repositories/ # Repository implementations
-│
-├── domain/ # Domain layer
-│ ├── entities/ # Business entities
-│ ├── repositories/ # Repository contracts
-│ └── usecases/ # Business logic
-│
-└── presentation/ # UI layer
-├── bindings/ # GetX bindings
-├── controllers/ # GetX controllers
-├── middlewares/ # Route middlewares
-└── pages/ # All application screens
+## Project Structure (Clean Architecture)
+
+### lib/
+
+### ├── core/
+
+#### │ ├── constants/
+
+#### │ ├── utils/
+
+#### │ └── widgets/
+
+### │
+
+### ├── data/
+
+#### │ ├── datasources/
+
+#### │ ├── models/
+
+#### │ └── repositories/
+
+### │
+
+### ├── domain/
+
+#### │ ├── entities/
+
+#### │ ├── repositories/
+
+#### │ └── usecases/
+
+### │
+
+### └── presentation/
+
+#### ├── bindings/
+
+#### ├── controllers/
+
+#### ├── middlewares/
+
+#### └── pages/
 
 ## 🛠️ Setup Instructions
 
