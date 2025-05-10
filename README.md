@@ -70,13 +70,13 @@ lib/
    cd service-booking-app
 
     flutter pub get
+
    ```
 
+```
 flutter run
 
 ```
-
-
 
 ## Implemented Features
 
@@ -102,4 +102,7 @@ Pagination implementation
 Hero animations
 
 Authentication simulation
+
+```
+
 ```
