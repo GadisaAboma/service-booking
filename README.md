@@ -69,13 +69,19 @@ lib/
    git clone https://github.com/GadisaAboma/service-booking.git
    cd service-booking-app
 
-    flutter pub get
 
    ```
 
-```
-flutter run
+   2. **Get The dependecies**:
 
+   ```bash
+   flutter pub get
+   ```
+
+2. **Run the project**:
+
+```bash
+flutter run
 ```
 
 ## Implemented Features
@@ -102,6 +108,10 @@ Pagination implementation
 Hero animations
 
 Authentication simulation
+
+```
+
+```
 
 ```
 
