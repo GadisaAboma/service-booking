@@ -100,18 +100,10 @@ Responsive UI design
 
 Search and filter functionality
 
-Local persistence with Hive
+Local persistence with Shared Preferences
 
 Pagination implementation
 
 Hero animations
 
 Authentication simulation
-
-```
-
-```
-
-```
-
-```
