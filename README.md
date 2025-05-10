@@ -1,16 +1,40 @@
-# service_booking
+# Service Booking App (Flutter + GetX)
 
-A new Flutter project.
+A Flutter application for managing services with full CRUD functionality, built using GetX for state management and following Clean Architecture principles.
 
-## Getting Started
+## 📱 Screenshots
 
-This project is a starting point for a Flutter application.
+| Home Screen                              | Service Details                         | Add Service                              |
+| ---------------------------------------- | --------------------------------------- | ---------------------------------------- |
+| ![Home Screen](./assets/home_screen.jpg) | ![Details](./assets/service_detail.jpg) | ![Add Service](./assets/add_service.jpg) |
 
-A few resources to get you started if this is your first Flutter project:
+| Edit Service                       | Search & Filter                                   | Authentication |
+| ---------------------------------- | ------------------------------------------------- | -------------- |
+| ![Edit](./assets/edit_service.jpg) | ![Search](./assets/screenshots/search_filter.png) |
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## 🚀 Features
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- **Full CRUD Operations**:
+
+  - Create, Read, Update, and Delete services
+  - Service model includes: name, category, price, image, availability, duration, rating
+
+- **State Management**:
+
+  - GetX for efficient state management
+  - Dependency injection using GetX bindings
+
+- **UI/UX**:
+
+  - Clean, responsive design
+  - Form validation with visual feedback
+  - Loading indicators and toast notifications
+
+- **Bonus Features**:
+  - Search and filter services
+  - Local persistence with Hive
+  - Pagination for long lists
+  - Hero animations
+  - Authentication simulation
+
+## 🏗️ Project Structure (Clean Architecture)
