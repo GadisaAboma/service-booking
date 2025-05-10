@@ -8,9 +8,13 @@ A Flutter application for managing services with full CRUD functionality, built 
 | ---------------------------------------- | --------------------------------------- | ---------------------------------------- |
 | ![Home Screen](./assets/home_screen.jpg) | ![Details](./assets/service_detail.jpg) | ![Add Service](./assets/add_service.jpg) |
 
-| Edit Service                       | Search & Filter                                   | Authentication |
-| ---------------------------------- | ------------------------------------------------- | -------------- |
-| ![Edit](./assets/edit_service.jpg) | ![Search](./assets/screenshots/search_filter.png) |
+| Edit Service                       | Search & Filter                     | Authentication                               |
+| ---------------------------------- | ----------------------------------- | -------------------------------------------- |
+| ![Edit](./assets/edit_service.jpg) | ![Search](./assets/home_screen.jpg) | ![Authentication](./assets/login_screen.jpg) |
+
+| Category Filter                                  | Price Filter                               |
+| ------------------------------------------------ | ------------------------------------------ |
+| ![Category Filter](./assets/category_filter.jpg) | ![Price Filter](./assets/price_filter.jpg) |
 
 ## 🚀 Features
 
