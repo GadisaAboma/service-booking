@@ -83,7 +83,6 @@ A Flutter application for managing services with full CRUD functionality, built 
 
 #### ├── controllers/
 
-#### ├── middlewares/
 
 #### └── pages/
 
