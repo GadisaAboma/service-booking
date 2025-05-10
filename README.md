@@ -41,10 +41,6 @@ A Flutter application for managing services with full CRUD functionality, built 
   - Hero animations
   - Authentication simulation
 
-## 🎥 App Demo Video
-
-[![Service Booking App Demo](./assets/home_screen.jpg)](./assets/video_guide.mp4)
-
 ## 🏗️ Project Structure (Clean Architecture)
 
 ## Project Structure (Clean Architecture)
