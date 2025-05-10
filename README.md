@@ -16,6 +16,10 @@ A Flutter application for managing services with full CRUD functionality, built 
 | ------------------------------------------------ | ------------------------------------------ |
 | ![Category Filter](./assets/category_filter.jpg) | ![Price Filter](./assets/price_filter.jpg) |
 
+| Offline mode                                  |
+| --------------------------------------------- |
+| ![Category Filter](./assets/offline_mode.jpg) |
+
 ## 🚀 Features
 
 - **Full CRUD Operations**:
@@ -82,7 +86,6 @@ A Flutter application for managing services with full CRUD functionality, built 
 #### ├── bindings/
 
 #### ├── controllers/
-
 
 #### └── pages/
 
